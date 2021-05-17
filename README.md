@@ -8,3 +8,6 @@ Simple Android app for collecting data about board games. Academic project for t
 
 ## Implemented features
 * In progress
+
+___
+Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
