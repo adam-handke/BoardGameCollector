@@ -3,11 +3,14 @@ package com.ubiquitous.boardgamecollector
 import android.graphics.Bitmap
 import java.time.LocalDate
 
+//TODO: add artist, designer, location
 class BoardGame(
     var id: Int? = null,
     var name: String? = null,
     var originalName: String? = null,
     var yearPublished: Int? = null,
+    var designers: List<String> = listOf(),
+    var artists: List<String> = listOf(),
     var description: String? = null,
     var dateOrdered: LocalDate? = null,
     var dateAdded: LocalDate? = null,
@@ -17,9 +20,12 @@ class BoardGame(
     var bggid: Int = 0,
     var mpn: String? = null,    //Manufacturer Part Number
     var rank: Int = 0,
-    var baseExtensionStatus: BaseExtensionStatus = BaseExtensionStatus.BASE,
+    var baseExpansionStatus: BaseExpansionStatus = BaseExpansionStatus.BASE,
+    var expansionNames: List<String> = listOf(),
     var comment: String? = null,
-    var thumbnail: Bitmap? = null
+    var thumbnail: Bitmap? = null,
+    var location: String? = null,
+    var locationComment: String? = null
 ) {
 
     //simplest constructor

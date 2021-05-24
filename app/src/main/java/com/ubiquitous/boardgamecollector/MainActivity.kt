@@ -52,7 +52,7 @@ class MainActivity : AppCompatActivity() {
         val tableLayout: TableLayout = findViewById(R.id.tableLayout)
         val list = databaseHandler.getAllBoardGamesWithoutDetails()
         for (game in list) {
-            if (game.baseExtensionStatus == BaseExtensionStatus.BASE) {
+            if (game.baseExpansionStatus != BaseExpansionStatus.EXPANSION) {
                 val tableRow: View =
                     LayoutInflater.from(this).inflate(R.layout.table_item, null, false)
                 val rank: TextView = tableRow.findViewById(R.id.rank)
