@@ -9,22 +9,22 @@ class BoardGame(
     var name: String? = null,
     var originalName: String? = null,
     var yearPublished: Int? = null,
-    var designers: List<String> = listOf(),
-    var artists: List<String> = listOf(),
+    var designerNames: List<String> = listOf(),
+    var artistNames: List<String> = listOf(),
     var description: String? = null,
     var dateOrdered: LocalDate? = null,
     var dateAdded: LocalDate? = null,
     var pricePurchased: String? = null,
     var rrp: String? = null,    //recommended retail price
     var barcode: String? = null,
-    var bggid: Int = 0,
+    var bggid: Int = 0,         //ID in the BoardGameGeek database
     var mpn: String? = null,    //Manufacturer Part Number
     var rank: Int = 0,
     var baseExpansionStatus: BaseExpansionStatus = BaseExpansionStatus.BASE,
     var expansionNames: List<String> = listOf(),
     var comment: String? = null,
     var thumbnail: Bitmap? = null,
-    var location: String? = null,
+    var locationName: String? = null,
     var locationComment: String? = null
 ) {
 
