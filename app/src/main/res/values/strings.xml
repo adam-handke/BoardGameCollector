@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Board Game Collector</string>
+    <string name="thumbnail_description">Thumbnail of a board game</string>
 </resources>

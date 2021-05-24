@@ -99,10 +99,10 @@ class DatabaseHandler(
     }
 
     //TODO: parameterized ORDER BY
-    fun getAllBoardGames(): List<BoardGame> {
+    fun getAllBoardGamesWithoutDetails(): List<BoardGame> {
         val list: MutableList<BoardGame> = mutableListOf()
         val query =
-            "SELECT $COLUMN_ID, $COLUMN_NAME, $COLUMN_YEAR_PUBLISHED, $COLUMN_DESCRIPTION, " +
+            "SELECT $COLUMN_ID, $COLUMN_NAME, $COLUMN_YEAR_PUBLISHED, $COLUMN_DESCRIPTION, $COLUMN_DATE_ADDED, " +
                     "$COLUMN_BGGID, $COLUMN_RANK, $COLUMN_BASE_EXTENSION_STATUS, $COLUMN_THUMBNAIL " +
                     "FROM $TABLE_BOARDGAMES;"
         val db = this.writableDatabase
@@ -114,9 +114,12 @@ class DatabaseHandler(
                 boardGame.name = cursor.getString(1)
                 boardGame.yearPublished = cursor.getInt(2)
                 boardGame.description = cursor.getString(3)
-                boardGame.bggid = cursor.getInt(4)
-                boardGame.rank = cursor.getInt(5)
-                when (cursor.getString(6)) {
+                boardGame.dateAdded =
+                    Instant.ofEpochMilli(cursor.getLong(4)).atZone(ZoneId.systemDefault())
+                        .toLocalDate()
+                boardGame.bggid = cursor.getInt(5)
+                boardGame.rank = cursor.getInt(6)
+                when (cursor.getString(7)) {
                     BaseExtensionStatus.EXTENSION.name -> boardGame.baseExtensionStatus =
                         BaseExtensionStatus.EXTENSION
                     BaseExtensionStatus.BOTH.name -> boardGame.baseExtensionStatus =
@@ -125,18 +128,19 @@ class DatabaseHandler(
                         boardGame.baseExtensionStatus = BaseExtensionStatus.BASE
                     }
                 }
-                val tmpThumbnail = cursor.getBlob(7)
+                //TODO:thumbnail
+                val tmpThumbnail = cursor.getBlob(8)
                 boardGame.thumbnail =
                     BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)
                 list.add(boardGame)
             }
         } catch (e: Exception) {
-            Log.e("DB EXCEPTION", e.message.toString())
+            Log.e("getAllBoardGames_EXCEPTION", e.message.toString())
         } finally {
             cursor.close()
         }
         db.close()
-        return list
+        return list.sortedBy { it.name }
     }
 
     fun getBoardGameByID(id: Int): BoardGame {
@@ -173,12 +177,13 @@ class DatabaseHandler(
                     }
                 }
                 boardGame.comment = cursor.getString(14)
+                //TODO:thumbnail
                 val tmpThumbnail = cursor.getBlob(15)
                 boardGame.thumbnail =
                     BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)
             }
         } catch (e: Exception) {
-            Log.e("DB EXCEPTION", e.message.toString())
+            Log.e("getBoardGameByID_EXCEPTION", e.message.toString())
         } finally {
             cursor.close()
         }

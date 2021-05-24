@@ -2,27 +2,49 @@
 <TableRow xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="3dp"
+    android:animateLayoutChanges="true"
+    android:clickable="true"
+    android:minHeight="60dp"
     android:orientation="horizontal">
 
     <TextView
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:id="@+id/rank"
-        android:layout_weight="0.25"
-        android:gravity="center"/>
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginHorizontal="1dp"
+        android:layout_marginBottom="2dp"
+        android:layout_weight="0.2"
+        android:background="@color/secondary"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/black" />
 
     <ImageView
         android:id="@+id/thumbnail"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="0.25"
+        android:layout_marginHorizontal="1dp"
+        android:layout_marginBottom="2dp"
+        android:layout_weight="0.3"
+        android:background="@color/secondary"
+        android:contentDescription="@string/thumbnail_description"
         android:gravity="center" />
 
     <TextView
+        android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:id="@+id/name"
-        android:layout_weight="0.25"
-        android:gravity="center"/>
+        android:layout_marginHorizontal="1dp"
+        android:layout_marginBottom="2dp"
+        android:layout_weight="0.5"
+        android:background="@color/secondary"
+        android:fontFamily="sans-serif-medium"
+        android:gravity="center"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/black" />
 
 </TableRow>
