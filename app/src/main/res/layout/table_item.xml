@@ -6,6 +6,7 @@
     android:animateLayoutChanges="true"
     android:clickable="true"
     android:minHeight="60dp"
+    android:onClick="goToDetails"
     android:orientation="horizontal">
 
     <TextView
