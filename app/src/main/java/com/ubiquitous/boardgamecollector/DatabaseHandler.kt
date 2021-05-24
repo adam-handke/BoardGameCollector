@@ -13,18 +13,16 @@ import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import java.io.ByteArrayOutputStream
 import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
-import java.util.*
 
 class DatabaseHandler(
     context: Context,
-    name: String?,
+    name: String? = DATABASE_NAME,
     factory: SQLiteDatabase.CursorFactory?,
-    ver: Int
+    ver: Int = DATABASE_VERSION
 ) : SQLiteOpenHelper(context, DATABASE_NAME, factory, DATABASE_VERSION) {
 
     //private val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
@@ -32,6 +30,15 @@ class DatabaseHandler(
     companion object {
         private const val DATABASE_VERSION = 1
         private const val DATABASE_NAME = "BoardGameCollectorDB.db"
+        private var instance: DatabaseHandler? = null
+
+        //singleton
+        fun getInstance(context: Context): DatabaseHandler{
+            if(instance == null){
+                instance = DatabaseHandler(context, DATABASE_NAME, null, DATABASE_VERSION)
+            }
+            return  instance!!
+        }
 
         //tables
         const val TABLE_BOARDGAMES = "BoardGames"
@@ -45,7 +52,7 @@ class DatabaseHandler(
         const val LINK_TABLE_BOARDGAMES_LOCATIONS = "BoardGamesLocations"
 
         //columns
-        const val COLUMN_ID = "ID"
+        const val COLUMN_ID = "_id"
         const val COLUMN_NAME = "Name"
         const val COLUMN_ORIGINAL_NAME = "OriginalName"
         const val COLUMN_YEAR_PUBLISHED = "YearPublished"
@@ -237,7 +244,6 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                //TODO:thumbnail
                 val tmpThumbnail = cursor.getBlobOrNull(8)
                 if (tmpThumbnail != null) {
                     boardGame.thumbnail =
@@ -340,8 +346,8 @@ class DatabaseHandler(
             val cursor = db.query(
                 LINK_TABLE_BOARDGAMES_EXPANSIONS,
                 arrayOf(COLUMN_EXPANSION_NAME),
-                "? = ?",
-                arrayOf(COLUMN_BOARDGAME_ID, id.toString()),
+                "$COLUMN_BOARDGAME_ID = ?",
+                arrayOf(id.toString()),
                 null,
                 null,
                 COLUMN_EXPANSION_NAME,
@@ -369,8 +375,8 @@ class DatabaseHandler(
                 false,
                 TABLE_RANK_HISTORY,
                 arrayOf(COLUMN_RANK, COLUMN_DATE_RETRIEVED),
-                "? = ?",
-                arrayOf(COLUMN_BOARDGAME_ID, id.toString()),
+                "$COLUMN_BOARDGAME_ID = ?",
+                arrayOf(id.toString()),
                 null,
                 null,
                 COLUMN_DATE_RETRIEVED,
@@ -401,8 +407,8 @@ class DatabaseHandler(
         val cursor = db.query(
             TABLE_BOARDGAMES,
             null,
-            "? = ?",
-            arrayOf(COLUMN_ID, id.toString()),
+            "$COLUMN_ID = ?",
+            arrayOf(id.toString()),
             null,
             null,
             null,
@@ -414,8 +420,8 @@ class DatabaseHandler(
                 boardGame.name = cursor.getStringOrNull(1)
                 boardGame.originalName = cursor.getStringOrNull(2)
                 boardGame.yearPublished = cursor.getInt(3)
-                boardGame.designerNames = getDesignerNamesByBoardGameID(boardGame.id!!)
-                boardGame.artistNames = getArtistNamesByBoardGameID(boardGame.id!!)
+                boardGame.designerNames = getDesignerNamesByBoardGameID(id)
+                boardGame.artistNames = getArtistNamesByBoardGameID(id)
                 boardGame.description = cursor.getStringOrNull(4)
                 boardGame.dateOrdered =
                     cursor.getLongOrNull(5)?.let {
@@ -442,15 +448,14 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                boardGame.expansionNames = getExpansionNamesByBoardGameID(boardGame.id!!)
+                boardGame.expansionNames = getExpansionNamesByBoardGameID(id)
                 boardGame.comment = cursor.getStringOrNull(14)
-                //TODO:thumbnail
                 val tmpThumbnail = cursor.getBlobOrNull(15)
                 if (tmpThumbnail != null) {
                     boardGame.thumbnail =
                         BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)
                 }
-                val locationPair = getLocationNameAndCommentByBoardGameID(boardGame.id!!)
+                val locationPair = getLocationNameAndCommentByBoardGameID(id)
                 boardGame.locationName = locationPair.first
                 boardGame.locationComment = locationPair.second
             }
@@ -521,8 +526,8 @@ class DatabaseHandler(
             val cursor = db.query(
                 TABLE_ARTISTS,
                 arrayOf(COLUMN_ID),
-                "? = ?",
-                arrayOf(COLUMN_BGGID, artistBGGID.toString()),
+                "$COLUMN_BGGID = ?",
+                arrayOf(artistBGGID.toString()),
                 null,
                 null,
                 null,
@@ -564,8 +569,8 @@ class DatabaseHandler(
             val cursor = db.query(
                 TABLE_DESIGNERS,
                 arrayOf(COLUMN_ID),
-                "? = ?",
-                arrayOf(COLUMN_BGGID, designerBGGID.toString()),
+                "$COLUMN_BGGID = ?",
+                arrayOf(designerBGGID.toString()),
                 null,
                 null,
                 null,
@@ -609,8 +614,8 @@ class DatabaseHandler(
             val cursor = db.query(
                 TABLE_LOCATIONS,
                 arrayOf(COLUMN_ID),
-                "? = ?",
-                arrayOf(COLUMN_NAME, locationName),
+                "$COLUMN_NAME = ?",
+                arrayOf(locationName),
                 null,
                 null,
                 null,
@@ -659,11 +664,9 @@ class DatabaseHandler(
             val cursor = db.query(
                 LINK_TABLE_BOARDGAMES_EXPANSIONS,
                 null,
-                "? = ? AND ? = ?",
+                "$COLUMN_BOARDGAME_ID = ? AND $COLUMN_EXPANSION_BGGID = ?",
                 arrayOf(
-                    COLUMN_BOARDGAME_ID,
                     boardGameID.toString(),
-                    COLUMN_EXPANSION_BGGID,
                     expansion.bggid.toString()
                 ),
                 null,
@@ -697,8 +700,8 @@ class DatabaseHandler(
         db.update(
             TABLE_BOARDGAMES,
             valuesUpdate,
-            "? = ?",
-            arrayOf(COLUMN_ID, boardGameID.toString())
+            "$COLUMN_ID = ?",
+            arrayOf(boardGameID.toString())
         )
         return id
     }

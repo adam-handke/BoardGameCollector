@@ -2,6 +2,7 @@ package com.ubiquitous.boardgamecollector
 
 import android.graphics.Bitmap
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 //TODO: add artist, designer, location
 class BoardGame(
@@ -27,6 +28,7 @@ class BoardGame(
     var locationName: String? = null,
     var locationComment: String? = null
 ) {
+    private var pattern = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     //simplest constructor
     constructor(name: String) : this() {
@@ -36,4 +38,40 @@ class BoardGame(
     override fun toString(): String {
         return name.toString()
     }
+
+
+    fun toStringArray(base: String, expansion: String, both: String): Array<String>{
+        return arrayOf(
+            name ?: "—",
+            originalName ?: "—",
+            yearPublished?.toString() ?: "—",
+            when(designerNames.size){
+                0 -> "—"
+                else -> designerNames.joinToString(", ")
+            },
+            when(artistNames.size){
+                0 -> "—"
+                else -> artistNames.joinToString(", ")
+            },
+            description ?: "—",
+            dateOrdered?.format(pattern) ?: "—",
+            dateAdded?.format(pattern) ?: "—",
+            pricePurchased ?: "—",
+            rrp ?: "—",
+            barcode ?: "—",
+            bggid.toString(),
+            mpn ?: "—",
+            rank.toString(),
+            when (baseExpansionStatus) {
+                BaseExpansionStatus.EXPANSION -> expansion
+                BaseExpansionStatus.BOTH -> both
+                else -> base
+            },
+            comment ?: "—",
+            locationName ?: "—",
+            locationComment ?: "—"
+        )
+    }
+
+
 }

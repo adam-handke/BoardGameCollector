@@ -1,5 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kolekcja Gier Planszowych</string>
-    <string name="thumbnail_description">Miniaturka gry planszowej</string>
+    <string name="thumbnail">Miniaturka gry planszowej</string>
+    <string name="name">Nazwa</string>
+    <string name="original_name">Oryginalna nazwa</string>
+    <string name="date_ordered">Data zamówienia</string>
+    <string name="date_added">Data dodania</string>
+    <string name="price_purchased">Cena zakupu</string>
+    <string name="rrp">Sugerowana cena detaliczna (SCD)</string>
+    <string name="description">Opis</string>
+    <string name="year_published">Rok wydania</string>
+    <string name="artists">Artyści</string>
+    <string name="designers">Projektanci</string>
+    <string name="barcode">Kod kreskowy</string>
+    <string name="mpn">Numer części producenta (MPN)</string>
+    <string name="rank">Aktualna pozycja w rankingu BGG</string>
+    <string name="base_expansion_status">Podstawka / Dodatek</string>
+    <string name="comment">Komentarz</string>
+    <string name="location">Lokalizacja</string>
+    <string name="location_comment">Komentarz do lokalizacji</string>
+    <string name="expansions">Dodatki</string>
+    <string name="base">Podstawka</string>
+    <string name="expansion">Dodatek</string>
+    <string name="both">Oba</string>
 </resources>

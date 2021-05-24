@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
@@ -13,6 +14,9 @@ import androidx.appcompat.app.AppCompatDelegate
 import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
+
+    private val databaseHandler = DatabaseHandler.getInstance(this)
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
@@ -21,19 +25,27 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setLogo(R.mipmap.ic_launcher)
         supportActionBar?.setDisplayUseLogoEnabled(true)
 
-        val databaseHandler = DatabaseHandler(this, null, null, 1)
         databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
 
-        for (i in 1..30) {
+        for (i in 1..2) {
             databaseHandler.insertBoardGame(
                 BoardGame(
-                    name = "Chess",
+                    name = "Szachy",
+                    originalName = "Chess",
                     yearPublished = LocalDate.now().year,
+                    description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+                    dateAdded = LocalDate.now(),
+                    rrp = "99.99 zł",
+                    barcode = "11124040251207",
+                    bggid = 111,
+                    mpn = "919238",
                     rank = i,
+                    baseExpansionStatus = BaseExpansionStatus.BASE,
+                    comment = "To moja ulubiona gra!",
                     thumbnail = BitmapFactory.decodeResource(
                         resources,
                         R.mipmap.ic_launcher_foreground
-                    )
+                    ),
                 )
             )
             databaseHandler.insertBoardGame(
@@ -72,9 +84,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun goToDetails(v: View) {
+        databaseHandler.close()
         val intent = Intent(this, DetailsActivity::class.java)
         val id = v.tag as Int
         intent.putExtra("id", id)
+        Log.i("goToDetails", "id=$id")
         startActivity(intent)
     }
 }

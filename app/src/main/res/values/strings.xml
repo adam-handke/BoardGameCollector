@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">Board Game Collector</string>
-    <string name="thumbnail_description">Thumbnail of a board game</string>
+    <string name="thumbnail">Thumbnail of the board game</string>
+    <string name="name">Name</string>
+    <string name="original_name">Original name</string>
+    <string name="date_ordered">Date ordered</string>
+    <string name="date_added">Date added</string>
+    <string name="price_purchased">Price purchased</string>
+    <string name="rrp">Recommended retail price (RRP)</string>
+    <string name="description">Description</string>
+    <string name="year_published">Year published</string>
+    <string name="artists">Artists</string>
+    <string name="designers">Designers</string>
+    <string name="barcode">Barcode</string>
+    <string name="mpn">Manufacturer part number (MPN)</string>
+    <string name="bggid" translatable="false">Board Game Geek ID</string>
+    <string name="rank">Current BGG rank</string>
+    <string name="base_expansion_status">Base / Expansion</string>
+    <string name="comment">Comment</string>
+    <string name="location">Location</string>
+    <string name="location_comment">Location comment</string>
+    <string name="expansions">Expansions</string>
+    <string name="base">Base</string>
+    <string name="expansion">Expansion</string>
+    <string name="both">Both</string>
 </resources>
