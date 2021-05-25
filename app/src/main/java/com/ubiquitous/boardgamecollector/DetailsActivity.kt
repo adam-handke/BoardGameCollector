@@ -1,25 +1,30 @@
 package com.ubiquitous.boardgamecollector
 
-import androidx.appcompat.app.AppCompatActivity
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SimpleAdapter
-import java.time.LocalDate
+import androidx.appcompat.app.AppCompatActivity
 
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var detailListView: ListView
+    private var id: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
-        supportActionBar?.setDisplayShowHomeEnabled(true)
-        supportActionBar?.setLogo(R.mipmap.ic_launcher)
-        supportActionBar?.setDisplayUseLogoEnabled(true)
+        //supportActionBar?.setDisplayShowHomeEnabled(true)
+        //supportActionBar?.setLogo(R.mipmap.ic_launcher)
+        //supportActionBar?.setDisplayUseLogoEnabled(true)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //supportActionBar?.setHomeAsUpIndicator(R.mipmap.ic_launcher)
 
         val extras = intent.extras ?: return
-        val id = extras.getInt("id")
+        id = extras.getInt("id")
         val databaseHandler = DatabaseHandler.getInstance(this)
 
         val detailNames = arrayOf(
@@ -74,6 +79,19 @@ class DetailsActivity : AppCompatActivity() {
         detailListView.addHeaderView(imageView)
 
         databaseHandler.close()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId){
+            android.R.id.home -> {
+                val intent = Intent(this, MainActivity::class.java)
+                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                Log.i("goToMainActivity", "id=$id")
+                startActivity(intent)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     //TODO: on click actions specific for every row

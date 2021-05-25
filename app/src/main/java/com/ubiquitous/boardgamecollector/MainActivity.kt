@@ -13,12 +13,10 @@ import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.children
 import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
-    private val databaseHandler = DatabaseHandler.getInstance(this)
     private var sortBy = R.id.sort_by_name
     private lateinit var list: List<BoardGame>
 
@@ -56,7 +54,10 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayShowHomeEnabled(true)
         supportActionBar?.setLogo(R.mipmap.ic_launcher)
         supportActionBar?.setDisplayUseLogoEnabled(true)
+        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //supportActionBar?.setHomeAsUpIndicator(R.mipmap.ic_launcher)
 
+        val databaseHandler = DatabaseHandler.getInstance(this)
         databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
 
         for (i in 1..2) {
@@ -71,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     barcode = "11124040251207",
                     bggid = 111,
                     mpn = "919238",
-                    rank = i,
+                    rank = i+i,
                     baseExpansionStatus = BaseExpansionStatus.BASE,
                     comment = "To moja ulubiona gra!",
                     thumbnail = BitmapFactory.decodeResource(
@@ -82,9 +83,10 @@ class MainActivity : AppCompatActivity() {
             )
             databaseHandler.insertBoardGame(
                 BoardGame(
-                    name = "Checkers",
+                    name = "Warcaby",
+                    originalName = "Checkers",
                     yearPublished = LocalDate.now().year - i,
-                    rank = i * i,
+                    rank = i * i + i,
                     thumbnail = BitmapFactory.decodeResource(
                         resources,
                         R.mipmap.ic_launcher_foreground
@@ -94,6 +96,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         list = databaseHandler.getAllBoardGamesWithoutDetails()
+        databaseHandler.close()
         displayBoardGames()
 
         //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
@@ -120,7 +123,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun goToDetails(v: View) {
-        databaseHandler.close()
         val intent = Intent(this, DetailsActivity::class.java)
         val id = v.tag as Int
         intent.putExtra("id", id)
