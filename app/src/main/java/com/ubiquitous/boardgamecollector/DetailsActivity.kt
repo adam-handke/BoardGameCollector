@@ -42,6 +42,7 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         val databaseHandler = DatabaseHandler.getInstance(this)
+        val boardGame = databaseHandler.getBoardGameByID(id)
 
         val detailNames = arrayOf(
             getString(R.string.name),
@@ -63,7 +64,6 @@ class DetailsActivity : AppCompatActivity() {
             getString(R.string.location),
             getString(R.string.location_comment)
         )
-        val boardGame = databaseHandler.getBoardGameByID(id)
         val detailValues = boardGame.toStringArray(
             getString(R.string.base),
             getString(R.string.expansion),

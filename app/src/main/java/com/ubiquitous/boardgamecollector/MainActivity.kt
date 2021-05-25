@@ -68,13 +68,13 @@ class MainActivity : AppCompatActivity() {
                     originalName = "Chess",
                     yearPublished = LocalDate.now().year + i,
                     description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                    dateAdded = LocalDate.now(),
+                    dateAdded = LocalDate.now().minusDays(50),
                     rrp = "99.99 zł",
                     barcode = "11124040251207",
                     bggid = 111,
                     mpn = "919238",
                     rank = i + i,
-                    baseExpansionStatus = BaseExpansionStatus.BASE,
+                    baseExpansionStatus = BaseExpansionStatus.BOTH,
                     comment = "To moja ulubiona gra!",
                     thumbnail = BitmapFactory.decodeResource(
                         resources,
@@ -100,13 +100,14 @@ class MainActivity : AppCompatActivity() {
         databaseHandler.insertArtistOfBoardGame(1, 1235, "Elizabeth Potter")
         databaseHandler.insertDesignerOfBoardGame(1, 323, "Carl Carlson")
         databaseHandler.insertLocationOfBoardGame(1, "Szafa", "Z prawej strony")
+        databaseHandler.insertLocationOfBoardGame(2, "Skrzynia", "Pod książkami")
 
         list = databaseHandler.getAllBoardGamesWithoutDetails()
         databaseHandler.close()
         displayBoardGames()
 
         //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
-        //TODO: options menu: add from BGG, add without BGG, delete, BGG screen, locations screen, filter BASE/EXPANSION
+        //TODO: options menu: add from BGG, add without BGG, delete, BGG screen, locations screen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
