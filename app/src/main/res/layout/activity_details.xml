@@ -13,9 +13,6 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:clickable="true"
-        android:background="@color/secondary"
-        android:fontFamily="sans-serif-medium"
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textColor="@color/black" />
+        android:background="@color/secondary" />
 
 </LinearLayout>

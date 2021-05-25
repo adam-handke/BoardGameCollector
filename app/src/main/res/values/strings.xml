@@ -23,4 +23,7 @@
     <string name="base">Base</string>
     <string name="expansion">Expansion</string>
     <string name="both">Both</string>
+    <string name="sort_by_name">Sort by name</string>
+    <string name="sort_by_year">Sort by year published</string>
+    <string name="sort_by_rank">Sort by rank</string>
 </resources>

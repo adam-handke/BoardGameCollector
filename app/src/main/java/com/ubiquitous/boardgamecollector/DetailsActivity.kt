@@ -1,10 +1,7 @@
 package com.ubiquitous.boardgamecollector
 
-import android.graphics.BitmapFactory
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SimpleAdapter
@@ -78,4 +75,6 @@ class DetailsActivity : AppCompatActivity() {
 
         databaseHandler.close()
     }
+
+    //TODO: on click actions specific for every row
 }

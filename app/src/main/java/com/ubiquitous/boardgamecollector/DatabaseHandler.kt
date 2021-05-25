@@ -218,7 +218,7 @@ class DatabaseHandler(
             null,
             null,
             null,
-            COLUMN_NAME,
+            null,
             null
         )
         try {

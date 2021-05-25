@@ -23,4 +23,7 @@
     <string name="base">Podstawka</string>
     <string name="expansion">Dodatek</string>
     <string name="both">Oba</string>
+    <string name="sort_by_name">Sortuj wg nazwy</string>
+    <string name="sort_by_year">Sortuj wg roku wydania</string>
+    <string name="sort_by_rank">Sortuj wg pozycji w rankingu</string>
 </resources>
