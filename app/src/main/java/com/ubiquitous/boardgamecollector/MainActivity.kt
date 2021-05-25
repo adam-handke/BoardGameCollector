@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
         displayBoardGames()
 
         //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
-        //TODO: options menu: add from BGG, add without BGG, delete, BGG screen, locations screen
+        //TODO: options menu: add from BGG, add without BGG, BGG screen, locations screen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

@@ -122,6 +122,12 @@ class DetailsActivity : AppCompatActivity() {
                 startActivity(intent)
                 true
             }
+            R.id.delete -> {
+                val databaseHandler = DatabaseHandler.getInstance(this)
+                databaseHandler.deleteBoardGameByID(id)
+                onBackPressed()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -134,6 +140,22 @@ class DetailsActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    //TODO: on click actions specific for every row
-    //TODO: on return from EditActivity show a toast on the outcome
+    /*TODO: on click actions specific for every row:
+        name - copy to clipboard
+        original name - copy to clipboard
+        year - copy to clipboard
+        designers - copy to clipboard (or go to designers activity???)
+        artists - copy to clipboard (or go to artists activity???)
+        description - copy to clipboard
+        dates - copy to clipboard
+        prices - copy to clipboard
+        barcode - copy to clipboard
+        BGGID - open URL with that ID through a web browser
+        MPN - copy to clipboard
+        rank - rank history activity
+        baseExpansion status - copy to clipboard
+        comment - copy to clipboard
+        location - locations activity
+        location comment - copy to clipboard
+     */
 }

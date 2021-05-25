@@ -32,4 +32,5 @@
     <string name="detailsEditCancelled">Editing of the board game was cancelled!</string>
     <string name="hide_expansions">Hide expansions</string>
     <string name="nullName">Null</string>
+    <string name="delete">Delete</string>
 </resources>

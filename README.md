@@ -9,7 +9,7 @@ Simple Android app for collecting data about board games. Academic project for t
 
 ## Implemented features
 * *MainActivity* - listing all board games in the collection. Options menu allows to: sort the list by name, year or rank; hide expansions.
-* *DetailsActivity* - showing the details of a board game selected in the *MainActivity*. Options menu allows to go to the *EditActivity*.
+* *DetailsActivity* - showing the details of a board game selected in the *MainActivity*. Options menu allows to: go to the *EditActivity*; delete the board game.
 * *EditActivity* - editing editable details of a board game.
 
 ___

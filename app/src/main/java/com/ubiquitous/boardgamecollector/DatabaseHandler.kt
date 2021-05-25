@@ -112,8 +112,10 @@ class DatabaseHandler(
         )
         db?.execSQL(
             "CREATE TABLE $LINK_TABLE_BOARDGAMES_ARTISTS (\n" +
-                    "    $COLUMN_BOARDGAME_ID INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID),\n" +
-                    "    $COLUMN_ARTIST_ID    INTEGER REFERENCES $TABLE_ARTISTS ($COLUMN_ID),\n" +
+                    "    $COLUMN_BOARDGAME_ID INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID)" +
+                    "                         ON DELETE CASCADE,\n" +
+                    "    $COLUMN_ARTIST_ID    INTEGER REFERENCES $TABLE_ARTISTS ($COLUMN_ID) " +
+                    "                         ON DELETE CASCADE,\n" +
                     "                         PRIMARY KEY (\n" +
                     "                           $COLUMN_BOARDGAME_ID,\n" +
                     "                           $COLUMN_ARTIST_ID\n" +
@@ -129,8 +131,10 @@ class DatabaseHandler(
         )
         db?.execSQL(
             "CREATE TABLE $LINK_TABLE_BOARDGAMES_DESIGNERS (\n" +
-                    "    $COLUMN_BOARDGAME_ID   INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID),\n" +
-                    "    $COLUMN_DESIGNER_ID    INTEGER REFERENCES $TABLE_DESIGNERS ($COLUMN_ID),\n" +
+                    "    $COLUMN_BOARDGAME_ID   INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID) " +
+                    "                           ON DELETE CASCADE,\n" +
+                    "    $COLUMN_DESIGNER_ID    INTEGER REFERENCES $TABLE_DESIGNERS ($COLUMN_ID)" +
+                    "                           ON DELETE CASCADE,\n" +
                     "                           PRIMARY KEY (\n" +
                     "                               $COLUMN_BOARDGAME_ID,\n" +
                     "                               $COLUMN_DESIGNER_ID\n" +
@@ -146,8 +150,9 @@ class DatabaseHandler(
         db?.execSQL(
             "CREATE TABLE $LINK_TABLE_BOARDGAMES_LOCATIONS (\n" +
                     "    $COLUMN_BOARDGAME_ID   INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID) \n" +
-                    "                           UNIQUE,\n" +
-                    "    $COLUMN_LOCATION_ID    INTEGER REFERENCES $TABLE_LOCATIONS ($COLUMN_ID),\n" +
+                    "                           ON DELETE CASCADE UNIQUE,\n" +
+                    "    $COLUMN_LOCATION_ID    INTEGER REFERENCES $TABLE_LOCATIONS ($COLUMN_ID)" +
+                    "                           ON DELETE CASCADE,\n" +
                     "    $COLUMN_COMMENT        TEXT,\n" +
                     "                           PRIMARY KEY (\n" +
                     "                               $COLUMN_BOARDGAME_ID,\n" +
@@ -157,7 +162,8 @@ class DatabaseHandler(
         )
         db?.execSQL(
             "CREATE TABLE $LINK_TABLE_BOARDGAMES_EXPANSIONS (\n" +
-                    "    $COLUMN_BOARDGAME_ID    INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID),\n" +
+                    "    $COLUMN_BOARDGAME_ID    INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID) " +
+                    "                            ON DELETE CASCADE,\n" +
                     "    $COLUMN_EXPANSION_BGGID INTEGER,\n" +
                     "    $COLUMN_EXPANSION_NAME  TEXT,\n" +
                     "    PRIMARY KEY (\n" +
@@ -169,7 +175,8 @@ class DatabaseHandler(
         db?.execSQL(
             "CREATE TABLE $TABLE_RANK_HISTORY (\n" +
                     "    $COLUMN_ID             INTEGER PRIMARY KEY,\n" +
-                    "    $COLUMN_BOARDGAME_ID   INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID) \n" +
+                    "    $COLUMN_BOARDGAME_ID   INTEGER REFERENCES $TABLE_BOARDGAMES ($COLUMN_ID) " +
+                    "                           ON DELETE CASCADE\n" +
                     "                           NOT NULL,\n" +
                     "    $COLUMN_RANK           INTEGER NOT NULL\n" +
                     "                           DEFAULT (0),\n" +
@@ -770,9 +777,9 @@ class DatabaseHandler(
     }
 
     fun updateBoardGame(boardGame: BoardGame, locationID: Int) {
-        val db = this.writableDatabase
 
-        if(boardGame.id != null && boardGame.id!! > 0){
+        if (boardGame.id != null && boardGame.id!! > 0) {
+            val db = this.writableDatabase
             //update boardgames table
             val values = ContentValues()
             values.put(COLUMN_NAME, boardGame.name)
@@ -808,8 +815,12 @@ class DatabaseHandler(
             Log.i("updateBoardGame", "updated $rows BoardGames rows")
 
             //update location
-            db.delete(LINK_TABLE_BOARDGAMES_LOCATIONS, "$COLUMN_BOARDGAME_ID = ?", arrayOf(boardGame.id.toString()))
-            if(locationID > 0){
+            db.delete(
+                LINK_TABLE_BOARDGAMES_LOCATIONS,
+                "$COLUMN_BOARDGAME_ID = ?",
+                arrayOf(boardGame.id.toString())
+            )
+            if (locationID > 0) {
                 val valuesLocations = ContentValues()
                 valuesLocations.put(COLUMN_BOARDGAME_ID, boardGame.id)
                 valuesLocations.put(COLUMN_LOCATION_ID, locationID)
@@ -817,7 +828,17 @@ class DatabaseHandler(
 
                 db.insert(LINK_TABLE_BOARDGAMES_LOCATIONS, null, valuesLocations)
             }
+            db.close()
         }
-        db.close()
+    }
+
+    fun deleteBoardGameByID(id: Int) {
+
+        if (id > 0) {
+            val db = this.writableDatabase
+            val rows = db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(id.toString()))
+            Log.i("deleteBoardGameByID", "deleted $rows BoardGames rows where id=$id")
+            db.close()
+        }
     }
 }
