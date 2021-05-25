@@ -121,4 +121,5 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     //TODO: on click actions specific for every row
+    //TODO: on return from EditActivity show a toast on the outcome
 }
