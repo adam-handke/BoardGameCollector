@@ -8,6 +8,7 @@ import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SimpleAdapter
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 
 class DetailsActivity : AppCompatActivity() {
@@ -27,6 +28,19 @@ class DetailsActivity : AppCompatActivity() {
 
         val extras = intent.extras ?: return
         id = extras.getInt("id")
+
+        //show toast after editing details
+        if(intent.hasExtra("edit")){
+            val edit: Boolean = extras.getBoolean("edit")
+            if(edit){
+                val toast = Toast.makeText(applicationContext, getString(R.string.detailsEdited), Toast.LENGTH_SHORT)
+                toast.show()
+            } else{
+                val toast = Toast.makeText(applicationContext, getString(R.string.detailsEditCancelled), Toast.LENGTH_SHORT)
+                toast.show()
+            }
+        }
+
         val databaseHandler = DatabaseHandler.getInstance(this)
 
         val detailNames = arrayOf(

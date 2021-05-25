@@ -18,6 +18,7 @@ import java.time.LocalDate
 class MainActivity : AppCompatActivity() {
 
     private var sortBy = R.id.sort_by_name
+    private var hideExpansions = true
     private lateinit var list: List<BoardGame>
 
     private fun displayBoardGames() {
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity() {
         val tableLayout: TableLayout = findViewById(R.id.tableLayout)
         tableLayout.removeAllViews()
         for (boardGame in list) {
-            if (boardGame.baseExpansionStatus != BaseExpansionStatus.EXPANSION) {
+            if (!(boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION && hideExpansions)) {
                 val tableRow: View =
                     LayoutInflater.from(this).inflate(R.layout.table_item, null, false)
                 val rank: TextView = tableRow.findViewById(R.id.rank)
@@ -72,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                     barcode = "11124040251207",
                     bggid = 111,
                     mpn = "919238",
-                    rank = i+i,
+                    rank = i + i,
                     baseExpansionStatus = BaseExpansionStatus.BASE,
                     comment = "To moja ulubiona gra!",
                     thumbnail = BitmapFactory.decodeResource(
@@ -87,6 +88,7 @@ class MainActivity : AppCompatActivity() {
                     originalName = "Checkers",
                     yearPublished = LocalDate.now().year - i,
                     rank = i * i + i,
+                    baseExpansionStatus = BaseExpansionStatus.EXPANSION,
                     thumbnail = BitmapFactory.decodeResource(
                         resources,
                         R.mipmap.ic_launcher_foreground
@@ -116,12 +118,19 @@ class MainActivity : AppCompatActivity() {
         super.onPrepareOptionsMenu(menu)
         if (menu != null) {
             menu.findItem(sortBy).isChecked = true
+            menu.findItem(R.id.hideExpansions).isChecked = hideExpansions
         }
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        sortBy = item.itemId
+        if (item.itemId == R.id.hideExpansions) {
+            Log.i("onOptionsItemSelected", "hideExpansions=" + item.isChecked.toString())
+            item.isChecked = !item.isChecked
+            hideExpansions = item.isChecked
+        } else {
+            sortBy = item.itemId
+        }
         displayBoardGames()
         return true
     }

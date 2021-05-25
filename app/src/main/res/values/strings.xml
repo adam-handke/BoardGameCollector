@@ -28,4 +28,7 @@
     <string name="sort_by_rank">Sort by rank</string>
     <string name="edit">Edit details</string>
     <string name="details">Board game details</string>
+    <string name="detailsEdited">Board game was edited!</string>
+    <string name="detailsEditCancelled">Editing of the board game was cancelled!</string>
+    <string name="hide_expansions">Hide expansions</string>
 </resources>

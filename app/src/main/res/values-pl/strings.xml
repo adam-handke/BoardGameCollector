@@ -28,4 +28,7 @@
     <string name="sort_by_rank">Sortuj wg pozycji w rankingu</string>
     <string name="edit">Edytuj szczegóły</string>
     <string name="details">Szczegóły gry planszowej</string>
+    <string name="detailsEdited">Gra planszowa została zedytowana!</string>
+    <string name="detailsEditCancelled">Edycja gry planszowej została anulowana!</string>
+    <string name="hide_expansions">Ukryj dodatki</string>
 </resources>

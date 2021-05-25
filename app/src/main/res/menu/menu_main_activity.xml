@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.ubiquitous.boardgamecollector.MainActivity">
+
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/sort_by_name"
@@ -14,5 +15,13 @@
             android:id="@+id/sort_by_rank"
             android:title="@string/sort_by_rank" />
     </group>
+
+    <item
+        android:id="@+id/hideExpansions"
+        android:checkable="true"
+        android:title="@string/hide_expansions"
+        android:visible="true"
+        app:actionLayout="@layout/switch_item"
+        app:showAsAction="never" />
 
 </menu>
