@@ -3,6 +3,7 @@ package com.ubiquitous.boardgamecollector
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.ImageView
 import android.widget.ListView
@@ -22,6 +23,7 @@ class DetailsActivity : AppCompatActivity() {
         //supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         //supportActionBar?.setHomeAsUpIndicator(R.mipmap.ic_launcher)
+        supportActionBar?.setTitle(R.string.details)
 
         val extras = intent.extras ?: return
         id = extras.getInt("id")
@@ -81,17 +83,41 @@ class DetailsActivity : AppCompatActivity() {
         databaseHandler.close()
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_details_activity, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId){
             android.R.id.home -> {
+                /*
                 val intent = Intent(this, MainActivity::class.java)
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 Log.i("goToMainActivity", "id=$id")
+                startActivity(intent)
+                 */
+                onBackPressed()
+                true
+            }
+            R.id.edit -> {
+                val intent = Intent(this, EditActivity::class.java)
+                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.putExtra("id", id)
+                Log.i("goToEditActivity", "id=$id")
                 startActivity(intent)
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        val intent = Intent(this, MainActivity::class.java)
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        Log.i("onBackPressed", "id=$id")
+        startActivity(intent)
     }
 
     //TODO: on click actions specific for every row

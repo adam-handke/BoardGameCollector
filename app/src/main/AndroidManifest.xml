@@ -10,13 +10,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BoardGameCollector">
         <activity
+            android:name=".EditActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
             android:name=".DetailsActivity"
-            android:screenOrientation="portrait"></activity>
+            android:noHistory="true"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
+            android:noHistory="true"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

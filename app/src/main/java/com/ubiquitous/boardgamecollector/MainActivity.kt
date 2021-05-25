@@ -94,13 +94,17 @@ class MainActivity : AppCompatActivity() {
                 )
             )
         }
+        databaseHandler.insertArtistOfBoardGame(1, 1234, "John Smith")
+        databaseHandler.insertArtistOfBoardGame(1, 1235, "Elizabeth Potter")
+        databaseHandler.insertDesignerOfBoardGame(1, 323, "Carl Carlson")
+        databaseHandler.insertLocationOfBoardGame(1, "Szafa", "Z prawej strony")
 
         list = databaseHandler.getAllBoardGamesWithoutDetails()
         databaseHandler.close()
         displayBoardGames()
 
         //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
-        //TODO: options menu: add, delete, BGG screen, locations screen
+        //TODO: options menu: add from BGG, add without BGG, delete, BGG screen, locations screen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
