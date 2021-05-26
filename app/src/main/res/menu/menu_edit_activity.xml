@@ -6,6 +6,6 @@
     <item
         android:id="@+id/checkMark"
         android:icon="@drawable/ic_baseline_check_24"
-        android:title="@string/edit"
+        android:title="@string/edit_title"
         app:showAsAction="always"/>
 </menu>

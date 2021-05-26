@@ -41,19 +41,17 @@ import java.util.*
     )
 */
 
+//serves as both EDIT and ADD activity
 class EditActivity : AppCompatActivity() {
 
     private var boardGameID = 0
+    private var add = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setTitle(R.string.edit)
-
-        val extras = intent.extras ?: return
-        boardGameID = extras.getInt("id")
 
         val minYear = 1600
         val maxYear = 3000
@@ -61,10 +59,24 @@ class EditActivity : AppCompatActivity() {
         minDate.set(minYear, 0, 1)
         val maxDate = Calendar.getInstance()
         maxDate.set(maxYear, 11, 31)
+        val databaseHandler = DatabaseHandler.getInstance(this)
+
+        val extras = intent.extras ?: return
+        boardGameID = extras.getInt("id")
+
+        // setting up edit/add activity
+        val boardGame: BoardGame
+        if (boardGameID == 0) {
+            add = true
+            supportActionBar?.setTitle(R.string.add_title)
+            boardGame = BoardGame()
+        } else {
+            add = false
+            supportActionBar?.setTitle(R.string.edit_title)
+            boardGame = databaseHandler.getBoardGameDetails(boardGameID)
+        }
 
         //initial filling with values
-        val databaseHandler = DatabaseHandler.getInstance(this)
-        val boardGame = databaseHandler.getBoardGameDetails(boardGameID)
 
         val editName: TextInputEditText = findViewById(R.id.editName)
         editName.setText(boardGame.name)
@@ -171,8 +183,8 @@ class EditActivity : AppCompatActivity() {
         addLocationRadioButton(0, getString(R.string.noneSelected))
         val locations = databaseHandler.getAllLocations()
         for (loc in locations) {
-            Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.nullLocationName))
-            addLocationRadioButton(loc.key, loc.value ?: getString(R.string.nullLocationName))
+            Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.null_location_name))
+            addLocationRadioButton(loc.key, loc.value ?: getString(R.string.null_location_name))
         }
         val locationID = databaseHandler.getLocationID(boardGameID)
         val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
@@ -241,7 +253,16 @@ class EditActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                onBackPressed()
+                if (add) {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                    intent.putExtra("id", boardGameID)
+                    intent.putExtra("add", add)
+                    Log.i("onBackPressed_CancelAdd", "id=$boardGameID; add=$add")
+                    startActivity(intent)
+                } else {
+                    onBackPressed()
+                }
                 true
             }
             R.id.checkMark -> {
@@ -345,14 +366,19 @@ class EditActivity : AppCompatActivity() {
                     else -> editLocationComment.text.toString()
                 }
 
-                databaseHandler.updateBoardGame(boardGame, locationID)
+                if (add) {
+                    boardGameID = databaseHandler.insertBoardGame(boardGame, locationID)
+                } else {
+                    databaseHandler.updateBoardGame(boardGame, locationID)
+                }
                 databaseHandler.close()
 
                 val intent = Intent(this, DetailsActivity::class.java)
-                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 intent.putExtra("id", boardGameID)
                 intent.putExtra("edit", true)
-                Log.i("goToDetailsActivity", "id=$boardGameID; edit=true")
+                intent.putExtra("add", add)
+                Log.i("goToDetailsActivity", "id=$boardGameID; edit=true; add=$add")
                 startActivity(intent)
                 true
             }
@@ -363,10 +389,11 @@ class EditActivity : AppCompatActivity() {
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(this, DetailsActivity::class.java)
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         intent.putExtra("id", boardGameID)
         intent.putExtra("edit", false)
-        Log.i("goToDetailsActivity", "id=$boardGameID; edit=false")
+        intent.putExtra("add", add)
+        Log.i("goToDetailsActivity", "id=$boardGameID; edit=false; add=$add")
         startActivity(intent)
     }
 }

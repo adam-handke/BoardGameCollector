@@ -12,15 +12,15 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TableLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
     //TODO: sort by date added
     private var sortBy = R.id.sort_by_name
     private var hideExpansions = true
-    private lateinit var list: List<BoardGame>
+    private var list: List<BoardGame> = listOf()
 
     private fun displayBoardGames() {
         //sorting
@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity() {
         val tableLayout: TableLayout = findViewById(R.id.tableLayout)
         tableLayout.removeAllViews()
         for (boardGame in list) {
+            Log.i("displayBoardGame", "id=${boardGame.id}; name=${boardGame.name}")
             if (!(boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION && hideExpansions)) {
                 val tableRow: View =
                     LayoutInflater.from(this).inflate(R.layout.table_item, null, false)
@@ -41,9 +42,17 @@ class MainActivity : AppCompatActivity() {
 
                 tableRow.tag = boardGame.id  //store database id as a hidden tag of tableRow
                 rank.text = boardGame.rank.toString()
-                thumbnail.setImageBitmap(boardGame.thumbnail)
+                if (boardGame.thumbnail == null) {
+                    thumbnail.setImageBitmap(
+                        BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_foreground)
+                    )
+                } else {
+                    thumbnail.setImageBitmap(boardGame.thumbnail)
+                }
 
-                name.text = ((boardGame.name ?: boardGame.originalName ?: getString(R.string.unnamed_board_game)) + " (" + (boardGame.yearPublished ?: "—") + ")")
+                name.text = ((boardGame.name ?: boardGame.originalName
+                ?: getString(R.string.unnamed_board_game)) + " (" + (boardGame.yearPublished
+                    ?: "—") + ")")
 
                 tableLayout.addView(tableRow)
             }
@@ -60,9 +69,25 @@ class MainActivity : AppCompatActivity() {
         //supportActionBar?.setDisplayHomeAsUpEnabled(true)
         //supportActionBar?.setHomeAsUpIndicator(R.mipmap.ic_launcher)
 
-        val databaseHandler = DatabaseHandler.getInstance(this)
-        databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
+        val extras = intent.extras
 
+        //show toast after cancelled adding / successful deleting
+        if (intent.hasExtra("id") && extras != null) {
+            val msg = when (extras.getInt("id")) {
+                0 -> getString(R.string.adding_cancelled)
+                else -> getString(R.string.board_game_deleted)
+            }
+            val toast = Toast.makeText(
+                applicationContext,
+                msg,
+                Toast.LENGTH_SHORT
+            )
+            toast.show()
+        }
+
+        val databaseHandler = DatabaseHandler.getInstance(this)
+        //databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
+        /*
         for (i in 1..2) {
             databaseHandler.insertBoardGame(
                 BoardGame(
@@ -78,11 +103,7 @@ class MainActivity : AppCompatActivity() {
                     rank = i + i,
                     baseExpansionStatus = BaseExpansionStatus.BOTH,
                     comment = "To moja ulubiona gra!",
-                    thumbnail = BitmapFactory.decodeResource(
-                        resources,
-                        R.mipmap.ic_launcher_foreground
-                    ),
-                )
+                ), 0
             )
             databaseHandler.insertBoardGame(
                 BoardGame(
@@ -91,11 +112,7 @@ class MainActivity : AppCompatActivity() {
                     yearPublished = LocalDate.now().year - i,
                     rank = i * i + i,
                     baseExpansionStatus = BaseExpansionStatus.EXPANSION,
-                    thumbnail = BitmapFactory.decodeResource(
-                        resources,
-                        R.mipmap.ic_launcher_foreground
-                    )
-                )
+                ), 0
             )
         }
         databaseHandler.insertArtistOfBoardGame(1, 1234, "John Smith")
@@ -103,13 +120,13 @@ class MainActivity : AppCompatActivity() {
         databaseHandler.insertDesignerOfBoardGame(1, 323, "Carl Carlson")
         databaseHandler.insertLocationOfBoardGame(1, "Szafa", "Z prawej strony")
         databaseHandler.insertLocationOfBoardGame(2, "Skrzynia", "Pod książkami")
-
+        */
         list = databaseHandler.getAllBoardGamesWithoutDetails()
         databaseHandler.close()
         displayBoardGames()
 
         //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
-        //TODO: options menu: add from BGG, add without BGG, BGG screen, locations screen
+        //TODO: options menu: add from BGG, BGG screen, locations screen
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -127,14 +144,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.hideExpansions) {
-            Log.i("onOptionsItemSelected", "hideExpansions=" + item.isChecked.toString())
-            item.isChecked = !item.isChecked
-            hideExpansions = item.isChecked
-        } else {
-            sortBy = item.itemId
+        when (item.itemId) {
+            R.id.hideExpansions -> {
+                Log.i("onOptionsItemSelected", "hideExpansions=" + item.isChecked.toString())
+                item.isChecked = !item.isChecked
+                hideExpansions = item.isChecked
+                displayBoardGames()
+            }
+            R.id.add -> {
+                val intent = Intent(this, EditActivity::class.java)
+                intent.putExtra("id", 0)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                Log.i("goToEditActivity_ADD", "id=0")
+                startActivity(intent)
+            }
+            R.id.sort_by_name -> {
+                sortBy = item.itemId
+                displayBoardGames()
+            }
+            R.id.sort_by_rank -> {
+                sortBy = item.itemId
+                displayBoardGames()
+            }
+            R.id.sort_by_year -> {
+                sortBy = item.itemId
+                displayBoardGames()
+            }
+            else -> {
+                super.onOptionsItemSelected(item)
+            }
         }
-        displayBoardGames()
         return true
     }
 
@@ -142,7 +181,8 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(this, DetailsActivity::class.java)
         val id = v.tag as Int
         intent.putExtra("id", id)
-        Log.i("goToDetails", "id=$id")
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        Log.i("goToDetailsActivity", "id=$id")
         startActivity(intent)
     }
 }

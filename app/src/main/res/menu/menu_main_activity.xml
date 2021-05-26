@@ -24,4 +24,10 @@
         app:actionLayout="@layout/switch_item"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/add"
+        android:title="@string/add"
+        android:visible="true"
+        app:showAsAction="never" />
+
 </menu>

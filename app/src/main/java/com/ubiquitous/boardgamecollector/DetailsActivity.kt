@@ -1,6 +1,7 @@
 package com.ubiquitous.boardgamecollector
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -31,21 +32,35 @@ class DetailsActivity : AppCompatActivity() {
         val extras = intent.extras ?: return
         boardGameID = extras.getInt("id")
 
-        //show toast after editing details
-        if(intent.hasExtra("edit")){
-            val edit: Boolean = extras.getBoolean("edit")
-            if(edit){
-                val toast = Toast.makeText(applicationContext, getString(R.string.detailsEdited), Toast.LENGTH_SHORT)
-                toast.show()
-            } else{
-                val toast = Toast.makeText(applicationContext, getString(R.string.detailsEditCancelled), Toast.LENGTH_SHORT)
-                toast.show()
+        //show toast after editing details / adding board game
+        if (intent.hasExtra("edit")) {
+            val msg: String
+            val edit = extras.getBoolean("edit")
+            val add = extras.getBoolean("add")
+            msg = if (edit && add) {
+                //game was successfully added
+                getString(R.string.board_game_added)
+            } else {
+                if (edit) {
+                    //game was successfully edited
+                    getString(R.string.board_game_edited)
+                } else {
+                    //editing of the game was cancelled
+                    getString(R.string.editing_cancelled)
+                }
             }
+            val toast = Toast.makeText(
+                applicationContext,
+                msg,
+                Toast.LENGTH_SHORT
+            )
+            toast.show()
         }
 
         val databaseHandler = DatabaseHandler.getInstance(this)
         val boardGame = databaseHandler.getBoardGameDetails(boardGameID)
 
+        //TODO: expansion names
         val detailNames = arrayOf(
             getString(R.string.name),
             getString(R.string.original_name),
@@ -93,7 +108,13 @@ class DetailsActivity : AppCompatActivity() {
 
         //thumbnail as listview header
         val imageView = ImageView(this)
-        imageView.setImageBitmap(boardGame.thumbnail)
+        if (boardGame.thumbnail == null) {
+            imageView.setImageBitmap(
+                BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_foreground)
+            )
+        } else {
+            imageView.setImageBitmap(boardGame.thumbnail)
+        }
         detailListView.addHeaderView(imageView)
 
         databaseHandler.close()
@@ -105,7 +126,7 @@ class DetailsActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId){
+        when (item.itemId) {
             android.R.id.home -> {
                 /*
                 val intent = Intent(this, MainActivity::class.java)
@@ -114,30 +135,34 @@ class DetailsActivity : AppCompatActivity() {
                 startActivity(intent)
                  */
                 onBackPressed()
-                true
             }
             R.id.edit -> {
                 val intent = Intent(this, EditActivity::class.java)
-                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 intent.putExtra("id", boardGameID)
                 Log.i("goToEditActivity", "id=$boardGameID")
                 startActivity(intent)
-                true
             }
             R.id.delete -> {
                 val databaseHandler = DatabaseHandler.getInstance(this)
                 databaseHandler.deleteBoardGame(boardGameID)
-                onBackPressed()
-                true
+
+                val intent = Intent(this, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.putExtra("id", boardGameID)
+                Log.i("goToMainActivity_DELETE", "id=$boardGameID")
+                startActivity(intent)
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> {
+            }
         }
+        return true
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
         val intent = Intent(this, MainActivity::class.java)
-        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         Log.i("onBackPressed", "id=$boardGameID")
         startActivity(intent)
     }

@@ -569,11 +569,12 @@ class DatabaseHandler(
     }
 
     //TODO: if value is null then put null (may by necessary to preserve nullness)
-    fun insertBoardGame(boardGame: BoardGame): Int {
+    //TODO: artists, designers, expansions
+    fun insertBoardGame(boardGame: BoardGame, locationID: Int): Int {
         val db = this.writableDatabase
 
         val values = ContentValues()
-        values.put(COLUMN_ID, boardGame.id)
+        //values.put(COLUMN_ID, boardGame.id)
         values.put(COLUMN_NAME, boardGame.name)
         values.put(COLUMN_ORIGINAL_NAME, boardGame.originalName)
         values.put(COLUMN_YEAR_PUBLISHED, boardGame.yearPublished)
@@ -603,16 +604,18 @@ class DatabaseHandler(
         val id = db.insert(TABLE_BOARDGAMES, null, values).toInt()
         Log.i("insertBoardGame", "id=$id")
         db.close()
-        if (boardGame.locationName != null) {
-            insertLocationOfBoardGame(id, boardGame.locationName!!, boardGame.locationComment)
+        if (locationID > 0) {
+            //new board game in existing location
+            updateLocationOfBoardGame(id, locationID, boardGame.locationComment)
         }
+        /*
         for (artist in boardGame.artistNames) {
             insertArtistOfBoardGame(id, 0, artist)
         }
         for (designer in boardGame.designerNames) {
             insertDesignerOfBoardGame(id, 0, designer)
         }
-        db.close()
+        */
         return id
     }
 
@@ -846,20 +849,28 @@ class DatabaseHandler(
             )
             Log.i("updateBoardGame", "updated $rows BoardGames rows")
 
-            //update location
+            db.close()
+
+            updateLocationOfBoardGame(boardGame.id!!, locationID, boardGame.locationComment)
+        }
+    }
+
+    fun updateLocationOfBoardGame(boardGameID: Int, locationID: Int, locationComment: String?) {
+        if (boardGameID > 0 && locationID > 0) {
+            val db = this.writableDatabase
+
             db.delete(
                 LINK_TABLE_BOARDGAMES_LOCATIONS,
                 "$COLUMN_BOARDGAME_ID = ?",
-                arrayOf(boardGame.id.toString())
+                arrayOf(boardGameID.toString())
             )
-            if (locationID > 0) {
-                val valuesLocations = ContentValues()
-                valuesLocations.put(COLUMN_BOARDGAME_ID, boardGame.id)
-                valuesLocations.put(COLUMN_LOCATION_ID, locationID)
-                valuesLocations.put(COLUMN_COMMENT, boardGame.locationComment)
 
-                db.insert(LINK_TABLE_BOARDGAMES_LOCATIONS, null, valuesLocations)
-            }
+            val valuesLocations = ContentValues()
+            valuesLocations.put(COLUMN_BOARDGAME_ID, boardGameID)
+            valuesLocations.put(COLUMN_LOCATION_ID, locationID)
+            valuesLocations.put(COLUMN_COMMENT, locationComment)
+            db.insert(LINK_TABLE_BOARDGAMES_LOCATIONS, null, valuesLocations)
+
             db.close()
         }
     }
@@ -868,7 +879,8 @@ class DatabaseHandler(
 
         if (boardGameID > 0) {
             val db = this.writableDatabase
-            val rows = db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(boardGameID.toString()))
+            val rows =
+                db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(boardGameID.toString()))
             Log.i("deleteBoardGame", "deleted $rows BoardGames rows where id=$boardGameID")
             db.close()
         }
