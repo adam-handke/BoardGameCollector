@@ -213,6 +213,7 @@ class DatabaseHandler(
             arrayOf(
                 COLUMN_ID,
                 COLUMN_NAME,
+                COLUMN_ORIGINAL_NAME,
                 COLUMN_YEAR_PUBLISHED,
                 COLUMN_DESCRIPTION,
                 COLUMN_DATE_ADDED,
@@ -233,16 +234,17 @@ class DatabaseHandler(
                 val boardGame = BoardGame()
                 boardGame.id = cursor.getIntOrNull(0)
                 boardGame.name = cursor.getStringOrNull(1)
-                boardGame.yearPublished = cursor.getIntOrNull(2)
-                boardGame.description = cursor.getStringOrNull(3)
+                boardGame.originalName = cursor.getStringOrNull(2)
+                boardGame.yearPublished = cursor.getIntOrNull(3)
+                boardGame.description = cursor.getStringOrNull(4)
                 boardGame.dateAdded =
-                    cursor.getLongOrNull(4)?.let {
+                    cursor.getLongOrNull(5)?.let {
                         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
                             .toLocalDate()
                     }
-                boardGame.bggid = cursor.getInt(5)
-                boardGame.rank = cursor.getInt(6)
-                when (cursor.getString(7)) {
+                boardGame.bggid = cursor.getInt(6)
+                boardGame.rank = cursor.getInt(7)
+                when (cursor.getString(8)) {
                     BaseExpansionStatus.EXPANSION.name -> boardGame.baseExpansionStatus =
                         BaseExpansionStatus.EXPANSION
                     BaseExpansionStatus.BOTH.name -> boardGame.baseExpansionStatus =
@@ -251,7 +253,7 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                val tmpThumbnail = cursor.getBlobOrNull(8)
+                val tmpThumbnail = cursor.getBlobOrNull(9)
                 if (tmpThumbnail != null) {
                     boardGame.thumbnail =
                         BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)
@@ -298,13 +300,13 @@ class DatabaseHandler(
         return map
     }
 
-    private fun getArtistNamesByBoardGameID(id: Int): List<String> {
+    private fun getArtistNames(boardGameID: Int): List<String> {
         val list = mutableListOf<String>()
-        if (id > 0) {
+        if (boardGameID > 0) {
             val query = "SELECT $TABLE_ARTISTS.$COLUMN_NAME " +
                     "FROM $LINK_TABLE_BOARDGAMES_ARTISTS INNER JOIN $TABLE_ARTISTS " +
                     "ON $LINK_TABLE_BOARDGAMES_ARTISTS.$COLUMN_ARTIST_ID = $TABLE_ARTISTS.$COLUMN_ID " +
-                    "WHERE $LINK_TABLE_BOARDGAMES_ARTISTS.$COLUMN_BOARDGAME_ID = $id " +
+                    "WHERE $LINK_TABLE_BOARDGAMES_ARTISTS.$COLUMN_BOARDGAME_ID = $boardGameID " +
                     "ORDER BY $TABLE_ARTISTS.$COLUMN_NAME;"
             val db = this.writableDatabase
             val cursor = db.rawQuery(query, null)
@@ -313,7 +315,7 @@ class DatabaseHandler(
                     list.add(cursor.getString(0))
                 }
             } catch (e: Exception) {
-                Log.e("getArtistsByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getArtistsNames_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -322,13 +324,13 @@ class DatabaseHandler(
         return list
     }
 
-    private fun getDesignerNamesByBoardGameID(id: Int): List<String> {
+    private fun getDesignerNames(boardGameID: Int): List<String> {
         val list = mutableListOf<String>()
-        if (id > 0) {
+        if (boardGameID > 0) {
             val query = "SELECT $TABLE_DESIGNERS.$COLUMN_NAME " +
                     "FROM $LINK_TABLE_BOARDGAMES_DESIGNERS INNER JOIN $TABLE_DESIGNERS " +
                     "ON $LINK_TABLE_BOARDGAMES_DESIGNERS.$COLUMN_DESIGNER_ID = $TABLE_DESIGNERS.$COLUMN_ID " +
-                    "WHERE $LINK_TABLE_BOARDGAMES_DESIGNERS.$COLUMN_BOARDGAME_ID = $id " +
+                    "WHERE $LINK_TABLE_BOARDGAMES_DESIGNERS.$COLUMN_BOARDGAME_ID = $boardGameID " +
                     "ORDER BY $TABLE_DESIGNERS.$COLUMN_NAME;"
             val db = this.writableDatabase
             val cursor = db.rawQuery(query, null)
@@ -337,7 +339,7 @@ class DatabaseHandler(
                     list.add(cursor.getString(0))
                 }
             } catch (e: Exception) {
-                Log.e("getDesignerNamesByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getDesignerNames_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -346,16 +348,16 @@ class DatabaseHandler(
         return list
     }
 
-    private fun getLocationNameAndCommentByBoardGameID(id: Int): Pair<String?, String?> {
+    private fun getLocationNameAndComment(boardGameID: Int): Pair<String?, String?> {
         //first - location name
         //second - comment on location
         var pair = Pair<String?, String?>(null, null)
-        if (id > 0) {
+        if (boardGameID > 0) {
             val query =
                 "SELECT $TABLE_LOCATIONS.$COLUMN_NAME, $LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_COMMENT " +
                         "FROM $LINK_TABLE_BOARDGAMES_LOCATIONS INNER JOIN $TABLE_LOCATIONS " +
                         "ON $LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_LOCATION_ID = $TABLE_LOCATIONS.$COLUMN_ID " +
-                        "WHERE $LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_BOARDGAME_ID = $id " +
+                        "WHERE $LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_BOARDGAME_ID = $boardGameID " +
                         "ORDER BY $TABLE_LOCATIONS.$COLUMN_NAME;"
             val db = this.writableDatabase
             val cursor = db.rawQuery(query, null)
@@ -364,7 +366,7 @@ class DatabaseHandler(
                     pair = Pair(cursor.getStringOrNull(0), cursor.getStringOrNull(1))
                 }
             } catch (e: Exception) {
-                Log.e("getLocationNameAndCommentByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getLocationNameAndComment_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -373,9 +375,9 @@ class DatabaseHandler(
         return pair
     }
 
-    fun getLocationIDByBoardGameID(id: Int): Int {
+    fun getLocationID(boardGameID: Int): Int {
         var locationID = 0
-        if (id > 0) {
+        if (boardGameID > 0) {
             val db = this.writableDatabase
             val cursor = db.query(
                 LINK_TABLE_BOARDGAMES_LOCATIONS,
@@ -383,7 +385,7 @@ class DatabaseHandler(
                     COLUMN_LOCATION_ID
                 ),
                 "$COLUMN_BOARDGAME_ID = ?",
-                arrayOf(id.toString()),
+                arrayOf(boardGameID.toString()),
                 null,
                 null,
                 null,
@@ -394,7 +396,7 @@ class DatabaseHandler(
                     locationID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("getLocationIDByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getLocationID_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -403,9 +405,39 @@ class DatabaseHandler(
         return locationID
     }
 
-    private fun getExpansionNamesByBoardGameID(id: Int): List<String> {
+    fun getLocationComment(boardGameID: Int, locationID: Int): String? {
+        var locationComment: String? = null
+        if (boardGameID > 0 && locationID > 0) {
+            val db = this.writableDatabase
+            val cursor = db.query(
+                LINK_TABLE_BOARDGAMES_LOCATIONS,
+                arrayOf(
+                    COLUMN_COMMENT
+                ),
+                "$COLUMN_BOARDGAME_ID = ? AND $COLUMN_LOCATION_ID = ?",
+                arrayOf(boardGameID.toString(), locationID.toString()),
+                null,
+                null,
+                null,
+                null
+            )
+            try {
+                if (cursor.moveToFirst()) {
+                    locationComment = cursor.getStringOrNull(0)
+                }
+            } catch (e: Exception) {
+                Log.e("getLocationComment_EXCEPTION", e.message.toString())
+            } finally {
+                cursor.close()
+            }
+            db.close()
+        }
+        return locationComment
+    }
+
+    private fun getExpansionNames(boardGameID: Int): List<String> {
         val list = mutableListOf<String>()
-        if (id > 0) {
+        if (boardGameID > 0) {
             /*
             val query = "SELECT $COLUMN_EXPANSION_NAME FROM $ " +
                     "WHERE $COLUMN_BOARDGAME_ID = $id ORDER BY $COLUMN_EXPANSION_NAME;"
@@ -415,7 +447,7 @@ class DatabaseHandler(
                 LINK_TABLE_BOARDGAMES_EXPANSIONS,
                 arrayOf(COLUMN_EXPANSION_NAME),
                 "$COLUMN_BOARDGAME_ID = ?",
-                arrayOf(id.toString()),
+                arrayOf(boardGameID.toString()),
                 null,
                 null,
                 COLUMN_EXPANSION_NAME,
@@ -426,7 +458,7 @@ class DatabaseHandler(
                     list.add(cursor.getString(0))
                 }
             } catch (e: Exception) {
-                Log.e("getExpansionNamesByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getExpansionNames_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -435,16 +467,16 @@ class DatabaseHandler(
         return list
     }
 
-    fun getRankHistoryByBoardGameID(id: Int): Map<Int, LocalDate> {
+    fun getRankHistory(boardGameID: Int): Map<Int, LocalDate> {
         val map = mutableMapOf<Int, LocalDate>()
-        if (id > 0) {
+        if (boardGameID > 0) {
             val db = this.writableDatabase
             val cursor = db.query(
                 false,
                 TABLE_RANK_HISTORY,
                 arrayOf(COLUMN_RANK, COLUMN_DATE_RETRIEVED),
                 "$COLUMN_BOARDGAME_ID = ?",
-                arrayOf(id.toString()),
+                arrayOf(boardGameID.toString()),
                 null,
                 null,
                 COLUMN_DATE_RETRIEVED,
@@ -459,7 +491,7 @@ class DatabaseHandler(
                     map[tmpRank] = tmpDate
                 }
             } catch (e: Exception) {
-                Log.e("getRankHistoryByBoardGameID_EXCEPTION", e.message.toString())
+                Log.e("getRankHistory_EXCEPTION", e.message.toString())
             } finally {
                 cursor.close()
             }
@@ -468,7 +500,7 @@ class DatabaseHandler(
         return map
     }
 
-    fun getBoardGameByID(id: Int): BoardGame {
+    fun getBoardGameDetails(boardGameID: Int): BoardGame {
         val boardGame = BoardGame()
         //val query = "SELECT * FROM $TABLE_BOARDGAMES WHERE $COLUMN_ID = $id;"
         val db = this.writableDatabase
@@ -476,7 +508,7 @@ class DatabaseHandler(
             TABLE_BOARDGAMES,
             null,
             "$COLUMN_ID = ?",
-            arrayOf(id.toString()),
+            arrayOf(boardGameID.toString()),
             null,
             null,
             null,
@@ -487,9 +519,9 @@ class DatabaseHandler(
                 boardGame.id = cursor.getInt(0)
                 boardGame.name = cursor.getStringOrNull(1)
                 boardGame.originalName = cursor.getStringOrNull(2)
-                boardGame.yearPublished = cursor.getInt(3)
-                boardGame.designerNames = getDesignerNamesByBoardGameID(id)
-                boardGame.artistNames = getArtistNamesByBoardGameID(id)
+                boardGame.yearPublished = cursor.getIntOrNull(3)
+                boardGame.designerNames = getDesignerNames(boardGameID)
+                boardGame.artistNames = getArtistNames(boardGameID)
                 boardGame.description = cursor.getStringOrNull(4)
                 boardGame.dateOrdered =
                     cursor.getLongOrNull(5)?.let {
@@ -516,19 +548,19 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                boardGame.expansionNames = getExpansionNamesByBoardGameID(id)
+                boardGame.expansionNames = getExpansionNames(boardGameID)
                 boardGame.comment = cursor.getStringOrNull(14)
                 val tmpThumbnail = cursor.getBlobOrNull(15)
                 if (tmpThumbnail != null) {
                     boardGame.thumbnail =
                         BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)
                 }
-                val locationPair = getLocationNameAndCommentByBoardGameID(id)
+                val locationPair = getLocationNameAndComment(boardGameID)
                 boardGame.locationName = locationPair.first
                 boardGame.locationComment = locationPair.second
             }
         } catch (e: Exception) {
-            Log.e("getBoardGameByID_EXCEPTION", e.message.toString())
+            Log.e("getBoardGameDetails_EXCEPTION", e.message.toString())
         } finally {
             cursor.close()
         }
@@ -832,12 +864,12 @@ class DatabaseHandler(
         }
     }
 
-    fun deleteBoardGameByID(id: Int) {
+    fun deleteBoardGame(boardGameID: Int) {
 
-        if (id > 0) {
+        if (boardGameID > 0) {
             val db = this.writableDatabase
-            val rows = db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(id.toString()))
-            Log.i("deleteBoardGameByID", "deleted $rows BoardGames rows where id=$id")
+            val rows = db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(boardGameID.toString()))
+            Log.i("deleteBoardGame", "deleted $rows BoardGames rows where id=$boardGameID")
             db.close()
         }
     }

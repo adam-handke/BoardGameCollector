@@ -10,13 +10,15 @@ import android.widget.ListView
 import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 
 class DetailsActivity : AppCompatActivity() {
 
     private lateinit var detailListView: ListView
-    private var id: Int = 0
+    private var boardGameID = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_details)
         //supportActionBar?.setDisplayShowHomeEnabled(true)
@@ -27,7 +29,7 @@ class DetailsActivity : AppCompatActivity() {
         supportActionBar?.setTitle(R.string.details)
 
         val extras = intent.extras ?: return
-        id = extras.getInt("id")
+        boardGameID = extras.getInt("id")
 
         //show toast after editing details
         if(intent.hasExtra("edit")){
@@ -42,7 +44,7 @@ class DetailsActivity : AppCompatActivity() {
         }
 
         val databaseHandler = DatabaseHandler.getInstance(this)
-        val boardGame = databaseHandler.getBoardGameByID(id)
+        val boardGame = databaseHandler.getBoardGameDetails(boardGameID)
 
         val detailNames = arrayOf(
             getString(R.string.name),
@@ -117,14 +119,14 @@ class DetailsActivity : AppCompatActivity() {
             R.id.edit -> {
                 val intent = Intent(this, EditActivity::class.java)
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                intent.putExtra("id", id)
-                Log.i("goToEditActivity", "id=$id")
+                intent.putExtra("id", boardGameID)
+                Log.i("goToEditActivity", "id=$boardGameID")
                 startActivity(intent)
                 true
             }
             R.id.delete -> {
                 val databaseHandler = DatabaseHandler.getInstance(this)
-                databaseHandler.deleteBoardGameByID(id)
+                databaseHandler.deleteBoardGame(boardGameID)
                 onBackPressed()
                 true
             }
@@ -136,7 +138,7 @@ class DetailsActivity : AppCompatActivity() {
         super.onBackPressed()
         val intent = Intent(this, MainActivity::class.java)
         //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        Log.i("onBackPressed", "id=$id")
+        Log.i("onBackPressed", "id=$boardGameID")
         startActivity(intent)
     }
 

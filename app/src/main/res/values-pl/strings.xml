@@ -31,6 +31,8 @@
     <string name="detailsEdited">Gra planszowa została zedytowana!</string>
     <string name="detailsEditCancelled">Edycja gry planszowej została anulowana!</string>
     <string name="hide_expansions">Ukryj dodatki</string>
-    <string name="nullName">Brak</string>
+    <string name="nullLocationName">Nienazwana</string>
     <string name="delete">Usuń</string>
+    <string name="noneSelected">Brak</string>
+    <string name="unnamed_board_game">Nienazwana gra planszowa</string>
 </resources>

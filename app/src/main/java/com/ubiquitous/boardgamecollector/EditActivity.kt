@@ -8,16 +8,13 @@ import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.DatePicker
-import android.widget.NumberPicker
-import android.widget.RadioButton
-import android.widget.RadioGroup
+import android.widget.*
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.children
 import com.google.android.material.textfield.TextInputEditText
-import java.time.Instant
 import java.time.LocalDate
 import java.util.*
-import kotlin.math.exp
 
 
 /*Layout:
@@ -46,17 +43,17 @@ import kotlin.math.exp
 
 class EditActivity : AppCompatActivity() {
 
-    private var id = 0
+    private var boardGameID = 0
 
-    //TODO: nullable numberpicker and datepickers (null checkbox?)
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.edit)
 
         val extras = intent.extras ?: return
-        id = extras.getInt("id")
+        boardGameID = extras.getInt("id")
 
         val minYear = 1600
         val maxYear = 3000
@@ -67,76 +64,91 @@ class EditActivity : AppCompatActivity() {
 
         //initial filling with values
         val databaseHandler = DatabaseHandler.getInstance(this)
-        val boardGame = databaseHandler.getBoardGameByID(id)
+        val boardGame = databaseHandler.getBoardGameDetails(boardGameID)
 
         val editName: TextInputEditText = findViewById(R.id.editName)
-        editName.setText(boardGame.name ?: "")
+        editName.setText(boardGame.name)
 
         val editOriginalName: TextInputEditText = findViewById(R.id.editOriginalName)
-        editOriginalName.setText(boardGame.originalName ?: "")
+        editOriginalName.setText(boardGame.originalName)
 
         val yearPicker: NumberPicker = findViewById(R.id.yearPicker)
-        yearPicker.maxValue = maxYear
+        val yearPickerNull: SwitchCompat = findViewById(R.id.yearPickerNull)
         yearPicker.minValue = minYear
+        yearPicker.maxValue = maxYear
         yearPicker.wrapSelectorWheel = true
         if (boardGame.yearPublished == null) {
+            yearPicker.isEnabled = false
             yearPicker.value = LocalDate.now().year
+            yearPickerNull.isChecked = true
         } else {
+            yearPicker.isEnabled = true
             yearPicker.value = boardGame.yearPublished!!
+            yearPickerNull.isChecked = false
         }
 
         val editDescription: TextInputEditText = findViewById(R.id.editDescription)
-        editDescription.setText(boardGame.description ?: "")
+        editDescription.setText(boardGame.description)
 
         val dateOrderedPicker: DatePicker = findViewById(R.id.dateOrderedPicker)
+        val dateOrderedPickerNull: SwitchCompat = findViewById(R.id.dateOrderedPickerNull)
         dateOrderedPicker.minDate = minDate.timeInMillis
         dateOrderedPicker.maxDate = maxDate.timeInMillis
         if (boardGame.dateOrdered == null) {
+            dateOrderedPicker.isEnabled = false
             dateOrderedPicker.init(
                 LocalDate.now().year,
                 LocalDate.now().month.value - 1,
                 LocalDate.now().dayOfMonth,
                 null
             )
+            dateOrderedPickerNull.isChecked = true
         } else {
+            dateOrderedPicker.isEnabled = true
             dateOrderedPicker.init(
                 boardGame.dateOrdered!!.year,
                 boardGame.dateOrdered!!.month.value - 1,
                 boardGame.dateOrdered!!.dayOfMonth,
                 null
             )
+            dateOrderedPickerNull.isChecked = false
         }
 
         val dateAddedPicker: DatePicker = findViewById(R.id.dateAddedPicker)
+        val dateAddedPickerNull: SwitchCompat = findViewById(R.id.dateAddedPickerNull)
         dateAddedPicker.minDate = minDate.timeInMillis
         dateAddedPicker.maxDate = maxDate.timeInMillis
         if (boardGame.dateAdded == null) {
+            dateAddedPicker.isEnabled = false
             dateAddedPicker.init(
                 LocalDate.now().year,
                 LocalDate.now().month.value - 1,
                 LocalDate.now().dayOfMonth,
                 null
             )
+            dateAddedPickerNull.isChecked = true
         } else {
+            dateAddedPicker.isEnabled = true
             dateAddedPicker.init(
                 boardGame.dateAdded!!.year,
                 boardGame.dateAdded!!.month.value - 1,
                 boardGame.dateAdded!!.dayOfMonth,
                 null
             )
+            dateAddedPickerNull.isChecked = false
         }
 
         val editPricePurchased: TextInputEditText = findViewById(R.id.editPricePurchased)
-        editPricePurchased.setText(boardGame.pricePurchased ?: "")
+        editPricePurchased.setText(boardGame.pricePurchased)
 
         val editRRP: TextInputEditText = findViewById(R.id.editRRP)
-        editRRP.setText(boardGame.rrp ?: "")
+        editRRP.setText(boardGame.rrp)
 
         val editBarcode: TextInputEditText = findViewById(R.id.editBarcode)
-        editBarcode.setText(boardGame.barcode ?: "")
+        editBarcode.setText(boardGame.barcode)
 
         val editMPN: TextInputEditText = findViewById(R.id.editMPN)
-        editMPN.setText(boardGame.mpn ?: "")
+        editMPN.setText(boardGame.mpn)
 
         val baseRadioButton: RadioButton = findViewById(R.id.baseRadioButton)
         val expansionRadioButton: RadioButton = findViewById(R.id.expansionRadioButton)
@@ -154,15 +166,15 @@ class EditActivity : AppCompatActivity() {
         }
 
         val editComment: TextInputEditText = findViewById(R.id.editComment)
-        editComment.setText(boardGame.comment ?: "")
+        editComment.setText(boardGame.comment)
 
-        addLocationRadioButton(0, getString(R.string.nullName))
+        addLocationRadioButton(0, getString(R.string.noneSelected))
         val locations = databaseHandler.getAllLocations()
         for (loc in locations) {
-            Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.nullName))
-            addLocationRadioButton(loc.key, loc.value ?: getString(R.string.nullName))
+            Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.nullLocationName))
+            addLocationRadioButton(loc.key, loc.value ?: getString(R.string.nullLocationName))
         }
-        val locationID = databaseHandler.getLocationIDByBoardGameID(id)
+        val locationID = databaseHandler.getLocationID(boardGameID)
         val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
         for (view in radioButtonGroup.children) {
             if (view.tag == locationID) {
@@ -171,23 +183,54 @@ class EditActivity : AppCompatActivity() {
                 break
             }
         }
-
-        val editLocationComment: TextInputEditText = findViewById(R.id.editLocationComment)
-        editLocationComment.setText(boardGame.locationComment ?: "")
-
         databaseHandler.close()
+        loadLocationComment(radioButtonGroup) //unnecessary parameter
+
     }
 
-    //takes location id from database and location name
-    private fun addLocationRadioButton(id: Int, name: String) {
+    private fun addLocationRadioButton(locationID: Int, locationName: String) {
         val group: RadioGroup = findViewById(R.id.locationRadioGroup)
         val radioButtonView: View =
             LayoutInflater.from(this).inflate(R.layout.radio_button, null, false)
-        radioButtonView.tag = id
+        radioButtonView.tag = locationID
         val radioButton: RadioButton = radioButtonView.findViewById(R.id.radio_button)
-        radioButton.text = name
-        radioButton.id = id
+        radioButton.text = locationName
+        radioButton.id = locationID
         group.addView(radioButton)
+    }
+
+    fun loadLocationComment(view: View) {
+        val group: RadioGroup = findViewById(R.id.locationRadioGroup)
+        val locationID = group.checkedRadioButtonId
+        val editLocationComment: TextInputEditText = findViewById(R.id.editLocationComment)
+
+        if (locationID > 0) {
+            val databaseHandler = DatabaseHandler.getInstance(this)
+            editLocationComment.isEnabled = true
+            editLocationComment.setText(databaseHandler.getLocationComment(boardGameID, locationID))
+            databaseHandler.close()
+        } else {
+            editLocationComment.isEnabled = false
+            editLocationComment.text = null
+        }
+    }
+
+    fun disableYearPicker(view: View) {
+        val switch = view as SwitchCompat
+        val yearPicker: NumberPicker = findViewById(R.id.yearPicker)
+        yearPicker.isEnabled = !switch.isChecked
+    }
+
+    fun disableDateOrderedPicker(view: View) {
+        val switch = view as SwitchCompat
+        val dateOrderedPicker: DatePicker = findViewById(R.id.dateOrderedPicker)
+        dateOrderedPicker.isEnabled = !switch.isChecked
+    }
+
+    fun disableDateAddedPicker(view: View) {
+        val switch = view as SwitchCompat
+        val dateAddedPicker: DatePicker = findViewById(R.id.dateAddedPicker)
+        dateAddedPicker.isEnabled = !switch.isChecked
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -204,77 +247,112 @@ class EditActivity : AppCompatActivity() {
             R.id.checkMark -> {
 
                 //UPDATE DATABASE
-                //TODO: nullness
                 val databaseHandler = DatabaseHandler.getInstance(this)
                 val boardGame = BoardGame()
-                boardGame.id = id
+                boardGame.id = boardGameID
 
                 val editName: TextInputEditText = findViewById(R.id.editName)
-                boardGame.name = editName.text.toString()
+                boardGame.name = when (editName.text.toString().trim()) {
+                    "" -> null
+                    else -> editName.text.toString()
+                }
 
                 val editOriginalName: TextInputEditText = findViewById(R.id.editOriginalName)
-                boardGame.originalName = editOriginalName.text.toString()
+                boardGame.originalName = when (editOriginalName.text.toString().trim()) {
+                    "" -> null
+                    else -> editOriginalName.text.toString()
+                }
 
                 val yearPicker: NumberPicker = findViewById(R.id.yearPicker)
-                boardGame.yearPublished = yearPicker.value
+                val yearPickerNull: SwitchCompat = findViewById(R.id.yearPickerNull)
+                boardGame.yearPublished = when (yearPickerNull.isChecked) {
+                    true -> null
+                    else -> yearPicker.value
+                }
 
                 val editDescription: TextInputEditText = findViewById(R.id.editDescription)
-                boardGame.description = editDescription.text.toString()
+                boardGame.description = when (editDescription.text.toString().trim()) {
+                    "" -> null
+                    else -> editDescription.text.toString()
+                }
 
                 val dateOrderedPicker: DatePicker = findViewById(R.id.dateOrderedPicker)
-                boardGame.dateOrdered = LocalDate.of(
-                    dateOrderedPicker.year,
-                    dateOrderedPicker.month + 1,
-                    dateOrderedPicker.dayOfMonth
-                )
+                val dateOrderedPickerNull: SwitchCompat = findViewById(R.id.dateOrderedPickerNull)
+                boardGame.dateOrdered = when (dateOrderedPickerNull.isChecked) {
+                    true -> null
+                    else -> LocalDate.of(
+                        dateOrderedPicker.year,
+                        dateOrderedPicker.month + 1,
+                        dateOrderedPicker.dayOfMonth
+                    )
+                }
 
                 val dateAddedPicker: DatePicker = findViewById(R.id.dateAddedPicker)
-                boardGame.dateAdded = LocalDate.of(
-                    dateAddedPicker.year,
-                    dateAddedPicker.month + 1,
-                    dateAddedPicker.dayOfMonth
-                )
+                val dateAddedPickerNull: SwitchCompat = findViewById(R.id.dateAddedPickerNull)
+                boardGame.dateAdded = when (dateAddedPickerNull.isChecked) {
+                    true -> null
+                    else -> LocalDate.of(
+                        dateAddedPicker.year,
+                        dateAddedPicker.month + 1,
+                        dateAddedPicker.dayOfMonth
+                    )
+                }
 
                 val editPricePurchased: TextInputEditText = findViewById(R.id.editPricePurchased)
-                boardGame.pricePurchased = editPricePurchased.text.toString()
+                boardGame.pricePurchased = when (editPricePurchased.text.toString().trim()) {
+                    "" -> null
+                    else -> editPricePurchased.text.toString()
+                }
 
                 val editRRP: TextInputEditText = findViewById(R.id.editRRP)
-                boardGame.rrp = editRRP.text.toString()
+                boardGame.rrp = when (editRRP.text.toString().trim()) {
+                    "" -> null
+                    else -> editRRP.text.toString()
+                }
 
                 val editBarcode: TextInputEditText = findViewById(R.id.editBarcode)
-                boardGame.barcode = editBarcode.text.toString()
+                boardGame.barcode = when (editBarcode.text.toString().trim()) {
+                    "" -> null
+                    else -> editBarcode.text.toString()
+                }
 
                 val editMPN: TextInputEditText = findViewById(R.id.editMPN)
-                boardGame.mpn = editMPN.text.toString()
+                boardGame.mpn = when (editMPN.text.toString().trim()) {
+                    "" -> null
+                    else -> editMPN.text.toString()
+                }
 
                 val expansionRadioButton: RadioButton = findViewById(R.id.expansionRadioButton)
                 val bothRadioButton: RadioButton = findViewById(R.id.bothRadioButton)
-                if (expansionRadioButton.isChecked) {
-                    boardGame.baseExpansionStatus = BaseExpansionStatus.EXPANSION
-                } else if (bothRadioButton.isChecked) {
-                    boardGame.baseExpansionStatus = BaseExpansionStatus.BOTH
-                } else {
-                    boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
+                boardGame.baseExpansionStatus = when {
+                    expansionRadioButton.isChecked -> BaseExpansionStatus.EXPANSION
+                    bothRadioButton.isChecked -> BaseExpansionStatus.BOTH
+                    else -> BaseExpansionStatus.BASE
                 }
 
                 val editComment: TextInputEditText = findViewById(R.id.editComment)
-                boardGame.comment = editComment.text.toString()
+                boardGame.comment = when (editComment.text.toString().trim()) {
+                    "" -> null
+                    else -> editComment.text.toString()
+                }
 
-                var locationID: Int = 0
                 val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
-                locationID = radioButtonGroup.checkedRadioButtonId
+                val locationID = radioButtonGroup.checkedRadioButtonId
 
                 val editLocationComment: TextInputEditText = findViewById(R.id.editLocationComment)
-                boardGame.locationComment = editLocationComment.text.toString()
+                boardGame.locationComment = when (editLocationComment.text.toString().trim()) {
+                    "" -> null
+                    else -> editLocationComment.text.toString()
+                }
 
                 databaseHandler.updateBoardGame(boardGame, locationID)
                 databaseHandler.close()
 
                 val intent = Intent(this, DetailsActivity::class.java)
                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                intent.putExtra("id", id)
+                intent.putExtra("id", boardGameID)
                 intent.putExtra("edit", true)
-                Log.i("goToDetailsActivity", "id=$id; edit=true")
+                Log.i("goToDetailsActivity", "id=$boardGameID; edit=true")
                 startActivity(intent)
                 true
             }
@@ -286,9 +364,9 @@ class EditActivity : AppCompatActivity() {
         super.onBackPressed()
         val intent = Intent(this, DetailsActivity::class.java)
         //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.putExtra("id", id)
+        intent.putExtra("id", boardGameID)
         intent.putExtra("edit", false)
-        Log.i("goToDetailsActivity", "id=$id; edit=false")
+        Log.i("goToDetailsActivity", "id=$boardGameID; edit=false")
         startActivity(intent)
     }
 }

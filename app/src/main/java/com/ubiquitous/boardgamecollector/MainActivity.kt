@@ -17,6 +17,7 @@ import java.time.LocalDate
 
 class MainActivity : AppCompatActivity() {
 
+    //TODO: sort by date added
     private var sortBy = R.id.sort_by_name
     private var hideExpansions = true
     private lateinit var list: List<BoardGame>
@@ -41,8 +42,9 @@ class MainActivity : AppCompatActivity() {
                 tableRow.tag = boardGame.id  //store database id as a hidden tag of tableRow
                 rank.text = boardGame.rank.toString()
                 thumbnail.setImageBitmap(boardGame.thumbnail)
-                name.text =
-                    (boardGame.name.toString() + " (" + boardGame.yearPublished.toString() + ")")
+
+                name.text = ((boardGame.name ?: boardGame.originalName ?: getString(R.string.unnamed_board_game)) + " (" + (boardGame.yearPublished ?: "—") + ")")
+
                 tableLayout.addView(tableRow)
             }
         }

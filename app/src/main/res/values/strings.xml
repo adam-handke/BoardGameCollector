@@ -31,6 +31,8 @@
     <string name="detailsEdited">Board game was edited!</string>
     <string name="detailsEditCancelled">Editing of the board game was cancelled!</string>
     <string name="hide_expansions">Hide expansions</string>
-    <string name="nullName">Null</string>
+    <string name="nullLocationName">Unnamed</string>
     <string name="delete">Delete</string>
+    <string name="noneSelected">None</string>
+    <string name="unnamed_board_game">Unnamed board game</string>
 </resources>
