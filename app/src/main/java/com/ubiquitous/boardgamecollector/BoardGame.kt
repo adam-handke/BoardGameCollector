@@ -10,8 +10,8 @@ class BoardGame(
     var name: String? = null,
     var originalName: String? = null,
     var yearPublished: Int? = null,
-    var designerNames: List<String> = listOf(),
-    var artistNames: List<String> = listOf(),
+    var designers: Map<Int, String?> = mapOf(),  //id/bggid - name
+    var artists: Map<Int, String?> = mapOf(),    //id/bggid - name
     var description: String? = null,
     var dateOrdered: LocalDate? = null,
     var dateAdded: LocalDate? = null,
@@ -22,7 +22,7 @@ class BoardGame(
     var mpn: String? = null,    //Manufacturer Part Number
     var rank: Int = 0,
     var baseExpansionStatus: BaseExpansionStatus = BaseExpansionStatus.BASE,
-    var expansionNames: List<String> = listOf(),
+    var expansions: Map<Int, String?> = mapOf(),  //id/bggid - name
     var comment: String? = null,
     var thumbnail: Bitmap? = null,
     var locationName: String? = null,
@@ -39,18 +39,22 @@ class BoardGame(
         return name.toString()
     }
 
-    fun toStringArray(base: String, expansion: String, both: String): Array<String>{
+    fun nameToString(unnamed: String): String {
+        return ((name ?: originalName ?: unnamed) + " (" + (yearPublished ?: "—") + ")")
+    }
+
+    fun toStringArray(base: String, expansion: String, both: String): Array<String> {
         return arrayOf(
             name ?: "—",
             originalName ?: "—",
             yearPublished?.toString() ?: "—",
-            when(designerNames.size){
+            when (designers.size) {
                 0 -> "—"
-                else -> designerNames.joinToString(", ")
+                else -> designers.values.joinToString(", ")
             },
-            when(artistNames.size){
+            when (artists.size) {
                 0 -> "—"
-                else -> artistNames.joinToString(", ")
+                else -> artists.values.joinToString(", ")
             },
             description ?: "—",
             dateOrdered?.format(pattern) ?: "—",
@@ -66,9 +70,9 @@ class BoardGame(
                 BaseExpansionStatus.BOTH -> both
                 else -> base
             },
-            when(expansionNames.size){
+            when (expansions.size) {
                 0 -> "—"
-                else -> expansionNames.joinToString(", ")
+                else -> expansions.values.joinToString(", ")
             },
             comment ?: "—",
             locationName ?: "—",

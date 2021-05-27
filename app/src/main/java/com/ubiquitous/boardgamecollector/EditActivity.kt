@@ -30,7 +30,7 @@ import java.util.*
         price_purchased - plain text
         rrp - plain text
         barcode - plain text
-        bggid - uneditable (hidden?)
+            TODO: bggid - plain text (uneditable / hidden?)
         mpn - plain text
         rank - uneditable (hidden?)
         base_expansion_status - choice out of 3 (or hidden)
@@ -38,7 +38,7 @@ import java.util.*
         comment - plain text
         location - choice out of existing locations (if empty, then go to adding location)
         location_comment - plain text
-            TODO: thumbnail - add from phone memory
+            TODO: thumbnail - add from phone memory?
     )
 */
 

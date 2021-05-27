@@ -261,7 +261,7 @@ class DatabaseHandler(
                 list.add(boardGame)
             }
         } catch (e: Exception) {
-            Log.e("getAllBoardGames_EXCEPTION", e.message.toString())
+            Log.e("getAllBoardGames_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
         } finally {
             cursor.close()
         }
@@ -291,7 +291,7 @@ class DatabaseHandler(
                 map[cursor.getInt(0)] = cursor.getStringOrNull(1)
             }
         } catch (e: Exception) {
-            Log.e("getAllLocations_EXCEPTION", e.message.toString())
+            Log.e("getAllLocations_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
         } finally {
             cursor.close()
         }
@@ -300,10 +300,10 @@ class DatabaseHandler(
         return map
     }
 
-    private fun getArtistNames(boardGameID: Int): List<String> {
-        val list = mutableListOf<String>()
+    private fun getArtists(boardGameID: Int): Map<Int, String?> {
+        val map = mutableMapOf<Int, String?>()
         if (boardGameID > 0) {
-            val query = "SELECT $TABLE_ARTISTS.$COLUMN_NAME " +
+            val query = "SELECT $TABLE_ARTISTS.$COLUMN_ID, $TABLE_ARTISTS.$COLUMN_NAME " +
                     "FROM $LINK_TABLE_BOARDGAMES_ARTISTS INNER JOIN $TABLE_ARTISTS " +
                     "ON $LINK_TABLE_BOARDGAMES_ARTISTS.$COLUMN_ARTIST_ID = $TABLE_ARTISTS.$COLUMN_ID " +
                     "WHERE $LINK_TABLE_BOARDGAMES_ARTISTS.$COLUMN_BOARDGAME_ID = $boardGameID " +
@@ -312,22 +312,22 @@ class DatabaseHandler(
             val cursor = db.rawQuery(query, null)
             try {
                 while (cursor.moveToNext()) {
-                    list.add(cursor.getString(0))
+                    map[cursor.getInt(0)] = cursor.getStringOrNull(1)
                 }
             } catch (e: Exception) {
-                Log.e("getArtistsNames_EXCEPTION", e.message.toString())
+                Log.e("getArtists_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
             db.close()
         }
-        return list
+        return map
     }
 
-    private fun getDesignerNames(boardGameID: Int): List<String> {
-        val list = mutableListOf<String>()
+    private fun getDesigners(boardGameID: Int): Map<Int, String?> {
+        val map = mutableMapOf<Int, String?>()
         if (boardGameID > 0) {
-            val query = "SELECT $TABLE_DESIGNERS.$COLUMN_NAME " +
+            val query = "SELECT $TABLE_DESIGNERS.$COLUMN_ID, $TABLE_DESIGNERS.$COLUMN_NAME " +
                     "FROM $LINK_TABLE_BOARDGAMES_DESIGNERS INNER JOIN $TABLE_DESIGNERS " +
                     "ON $LINK_TABLE_BOARDGAMES_DESIGNERS.$COLUMN_DESIGNER_ID = $TABLE_DESIGNERS.$COLUMN_ID " +
                     "WHERE $LINK_TABLE_BOARDGAMES_DESIGNERS.$COLUMN_BOARDGAME_ID = $boardGameID " +
@@ -336,16 +336,16 @@ class DatabaseHandler(
             val cursor = db.rawQuery(query, null)
             try {
                 while (cursor.moveToNext()) {
-                    list.add(cursor.getString(0))
+                    map[cursor.getInt(0)] = cursor.getStringOrNull(1)
                 }
             } catch (e: Exception) {
-                Log.e("getDesignerNames_EXCEPTION", e.message.toString())
+                Log.e("getDesigners_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
             db.close()
         }
-        return list
+        return map
     }
 
     private fun getLocationNameAndComment(boardGameID: Int): Pair<String?, String?> {
@@ -366,7 +366,7 @@ class DatabaseHandler(
                     pair = Pair(cursor.getStringOrNull(0), cursor.getStringOrNull(1))
                 }
             } catch (e: Exception) {
-                Log.e("getLocationNameAndComment_EXCEPTION", e.message.toString())
+                Log.e("getLocationNameAndComment_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -396,7 +396,7 @@ class DatabaseHandler(
                     locationID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("getLocationID_EXCEPTION", e.message.toString())
+                Log.e("getLocationID_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -426,7 +426,7 @@ class DatabaseHandler(
                     locationComment = cursor.getStringOrNull(0)
                 }
             } catch (e: Exception) {
-                Log.e("getLocationComment_EXCEPTION", e.message.toString())
+                Log.e("getLocationComment_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -435,8 +435,8 @@ class DatabaseHandler(
         return locationComment
     }
 
-    private fun getExpansionNames(boardGameID: Int): List<String> {
-        val list = mutableListOf<String>()
+    private fun getExpansions(boardGameID: Int): Map<Int, String?> {
+        val map = mutableMapOf<Int, String?>()
         if (boardGameID > 0) {
             /*
             val query = "SELECT $COLUMN_EXPANSION_NAME FROM $ " +
@@ -445,7 +445,7 @@ class DatabaseHandler(
             val db = this.writableDatabase
             val cursor = db.query(
                 LINK_TABLE_BOARDGAMES_EXPANSIONS,
-                arrayOf(COLUMN_EXPANSION_NAME),
+                arrayOf(COLUMN_EXPANSION_BGGID, COLUMN_EXPANSION_NAME),
                 "$COLUMN_BOARDGAME_ID = ?",
                 arrayOf(boardGameID.toString()),
                 null,
@@ -455,16 +455,16 @@ class DatabaseHandler(
             )
             try {
                 while (cursor.moveToNext()) {
-                    list.add(cursor.getString(0))
+                    map[cursor.getInt(0)] = cursor.getStringOrNull(1)
                 }
             } catch (e: Exception) {
-                Log.e("getExpansionNames_EXCEPTION", e.message.toString())
+                Log.e("getExpansionNames_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
             db.close()
         }
-        return list
+        return map
     }
 
     fun getRankHistory(boardGameID: Int): Map<Int, LocalDate> {
@@ -491,7 +491,7 @@ class DatabaseHandler(
                     map[tmpRank] = tmpDate
                 }
             } catch (e: Exception) {
-                Log.e("getRankHistory_EXCEPTION", e.message.toString())
+                Log.e("getRankHistory_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -520,8 +520,8 @@ class DatabaseHandler(
                 boardGame.name = cursor.getStringOrNull(1)
                 boardGame.originalName = cursor.getStringOrNull(2)
                 boardGame.yearPublished = cursor.getIntOrNull(3)
-                boardGame.designerNames = getDesignerNames(boardGameID)
-                boardGame.artistNames = getArtistNames(boardGameID)
+                boardGame.designers = getDesigners(boardGameID)
+                boardGame.artists = getArtists(boardGameID)
                 boardGame.description = cursor.getStringOrNull(4)
                 boardGame.dateOrdered =
                     cursor.getLongOrNull(5)?.let {
@@ -548,7 +548,7 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                boardGame.expansionNames = getExpansionNames(boardGameID)
+                boardGame.expansions = getExpansions(boardGameID)
                 boardGame.comment = cursor.getStringOrNull(14)
                 val tmpThumbnail = cursor.getBlobOrNull(15)
                 if (tmpThumbnail != null) {
@@ -560,7 +560,7 @@ class DatabaseHandler(
                 boardGame.locationComment = locationPair.second
             }
         } catch (e: Exception) {
-            Log.e("getBoardGameDetails_EXCEPTION", e.message.toString())
+            Log.e("getBoardGameDetails_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
         } finally {
             cursor.close()
         }
@@ -642,7 +642,7 @@ class DatabaseHandler(
                     artistID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertArtistOfBoardGame_EXCEPTION", e.message.toString())
+                Log.e("insertArtistOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -685,7 +685,7 @@ class DatabaseHandler(
                     designerID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertDesignerOfBoardGame_EXCEPTION", e.message.toString())
+                Log.e("insertDesignerOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }
@@ -730,7 +730,7 @@ class DatabaseHandler(
                     locationID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertLocationOfBoardGame_EXCEPTION", e.message.toString())
+                Log.e("insertLocationOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
             } finally {
                 cursor.close()
             }

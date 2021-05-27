@@ -2,6 +2,7 @@ package com.ubiquitous.boardgamecollector
 
 import android.content.Intent
 import android.graphics.BitmapFactory
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -14,6 +15,7 @@ import android.widget.TableLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import java.lang.Exception
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,9 +52,7 @@ class MainActivity : AppCompatActivity() {
                     thumbnail.setImageBitmap(boardGame.thumbnail)
                 }
 
-                name.text = ((boardGame.name ?: boardGame.originalName
-                ?: getString(R.string.unnamed_board_game)) + " (" + (boardGame.yearPublished
-                    ?: "—") + ")")
+                name.text = boardGame.nameToString(getString(R.string.unnamed_board_game))
 
                 tableLayout.addView(tableRow)
             }
@@ -121,7 +121,9 @@ class MainActivity : AppCompatActivity() {
         databaseHandler.insertLocationOfBoardGame(1, "Szafa", "Z prawej strony")
         databaseHandler.insertLocationOfBoardGame(2, "Skrzynia", "Pod książkami")
         */
+        //TODO: async loading games from database
         list = databaseHandler.getAllBoardGamesWithoutDetails()
+
         databaseHandler.close()
         displayBoardGames()
 
