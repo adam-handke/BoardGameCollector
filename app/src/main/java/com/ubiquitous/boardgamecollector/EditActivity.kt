@@ -21,12 +21,12 @@ import java.util.*
     ScrollView
         name - plain text
         original_name - plain text
-        year_published - spinner
+        year_published - spinner + null switch
             TODO: designers - generated radio buttons? (or hidden / uneditable???)
             TODO: artists - generated radio buttons? (or hidden / uneditable???)
         description - plain text
-        date_ordered - date picker spinner
-        date_added  - date picker spinner
+        date_ordered - date picker spinner + null switch
+        date_added  - date picker spinner + null switch
         price_purchased - plain text
         rrp - plain text
         barcode - plain text
@@ -34,10 +34,11 @@ import java.util.*
         mpn - plain text
         rank - uneditable (hidden?)
         base_expansion_status - choice out of 3 (or hidden)
+            TODO: expansions (maybe only by loading from BGG?)
         comment - plain text
         location - choice out of existing locations (if empty, then go to adding location)
         location_comment - plain text
-        thumbnail - uneditable, hidden
+            TODO: thumbnail - add from phone memory
     )
 */
 

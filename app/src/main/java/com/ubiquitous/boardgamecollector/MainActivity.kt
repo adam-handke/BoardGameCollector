@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatDelegate
 
 class MainActivity : AppCompatActivity() {
 
-    //TODO: sort by date added
+    //TODO: sort by date added?
     private var sortBy = R.id.sort_by_name
     private var hideExpansions = true
     private var list: List<BoardGame> = listOf()
@@ -125,8 +125,7 @@ class MainActivity : AppCompatActivity() {
         databaseHandler.close()
         displayBoardGames()
 
-        //TODO: blank table row for the case when there are no boardgames in the DB (click = add first)
-        //TODO: options menu: add from BGG, BGG screen, locations screen
+        //TODO: options menu: add from BGG, BGG screen, locations screen (artists, designers screens?)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -157,6 +156,13 @@ class MainActivity : AppCompatActivity() {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 Log.i("goToEditActivity_ADD", "id=0")
                 startActivity(intent)
+            }
+            R.id.resetCollection -> {
+                val databaseHandler = DatabaseHandler.getInstance(this)
+                databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1)
+                databaseHandler.close()
+                list = listOf()
+                displayBoardGames()
             }
             R.id.sort_by_name -> {
                 sortBy = item.itemId

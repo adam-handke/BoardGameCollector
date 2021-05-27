@@ -39,7 +39,6 @@ class BoardGame(
         return name.toString()
     }
 
-
     fun toStringArray(base: String, expansion: String, both: String): Array<String>{
         return arrayOf(
             name ?: "—",
@@ -66,6 +65,10 @@ class BoardGame(
                 BaseExpansionStatus.EXPANSION -> expansion
                 BaseExpansionStatus.BOTH -> both
                 else -> base
+            },
+            when(expansionNames.size){
+                0 -> "—"
+                else -> expansionNames.joinToString(", ")
             },
             comment ?: "—",
             locationName ?: "—",

@@ -50,9 +50,10 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1.5"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -63,10 +64,10 @@
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/yearPickerNull"
-                    android:onClick="disableYearPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:onClick="disableYearPicker"
                     android:text="@string/noneSelected"
                     android:textAlignment="center" />
 
@@ -105,9 +106,10 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1.5"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -118,10 +120,10 @@
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/dateOrderedPickerNull"
-                    android:onClick="disableDateOrderedPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center"
+                    android:layout_gravity="left"
+                    android:onClick="disableDateOrderedPicker"
                     android:text="@string/noneSelected"
                     android:textAlignment="center" />
 
@@ -147,9 +149,10 @@
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
+                android:layout_weight="1.5"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:padding="10dp">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -160,10 +163,10 @@
 
                 <androidx.appcompat.widget.SwitchCompat
                     android:id="@+id/dateAddedPickerNull"
-                    android:onClick="disableDateAddedPicker"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:onClick="disableDateAddedPicker"
                     android:text="@string/noneSelected"
                     android:textAlignment="center" />
 
@@ -242,18 +245,26 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="3"
-                android:text="@string/base_expansion_status"
-                android:textAlignment="center" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/base_expansion_status"
+                    android:textAlignment="center" />
+            </LinearLayout>
 
             <RadioGroup
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="3">
 
                 <RadioButton
                     android:id="@+id/baseRadioButton"
@@ -295,19 +306,27 @@
             android:gravity="center"
             android:orientation="horizontal">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="3"
-                android:text="@string/location"
-                android:textAlignment="center" />
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1.5"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/location"
+                    android:textAlignment="center" />
+            </LinearLayout>
 
             <RadioGroup
                 android:id="@+id/locationRadioGroup"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1">
+                android:layout_weight="3">
 
             </RadioGroup>
         </LinearLayout>

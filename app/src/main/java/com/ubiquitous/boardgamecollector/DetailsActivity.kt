@@ -77,6 +77,7 @@ class DetailsActivity : AppCompatActivity() {
             getString(R.string.mpn),
             getString(R.string.rank),
             getString(R.string.base_expansion_status),
+            getString(R.string.expansions),
             getString(R.string.comment),
             getString(R.string.location),
             getString(R.string.location_comment)

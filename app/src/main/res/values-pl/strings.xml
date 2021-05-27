@@ -41,4 +41,5 @@
     <string name="board_game_added">Dodano grę planszową!</string>
     <string name="error">BŁĄD</string>
     <string name="board_game_deleted">Usunięto grę planszową!</string>
+    <string name="reset_collection">Zresetuj kolekcję</string>
 </resources>

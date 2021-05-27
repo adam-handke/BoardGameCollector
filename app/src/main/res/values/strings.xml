@@ -41,4 +41,5 @@
     <string name="board_game_added">Board game was added!</string>
     <string name="error">ERROR</string>
     <string name="board_game_deleted">Board game was deleted!</string>
+    <string name="reset_collection">Reset collection</string>
 </resources>
