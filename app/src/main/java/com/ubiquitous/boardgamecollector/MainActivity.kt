@@ -87,40 +87,7 @@ class MainActivity : AppCompatActivity() {
 
         val databaseHandler = DatabaseHandler.getInstance(this)
         //databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
-        /*
-        for (i in 1..2) {
-            databaseHandler.insertBoardGame(
-                BoardGame(
-                    name = "Szachy",
-                    originalName = "Chess",
-                    yearPublished = LocalDate.now().year + i,
-                    description = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-                    dateAdded = LocalDate.now().minusDays(50),
-                    rrp = "99.99 zł",
-                    barcode = "11124040251207",
-                    bggid = 111,
-                    mpn = "919238",
-                    rank = i + i,
-                    baseExpansionStatus = BaseExpansionStatus.BOTH,
-                    comment = "To moja ulubiona gra!",
-                ), 0
-            )
-            databaseHandler.insertBoardGame(
-                BoardGame(
-                    name = "Warcaby",
-                    originalName = "Checkers",
-                    yearPublished = LocalDate.now().year - i,
-                    rank = i * i + i,
-                    baseExpansionStatus = BaseExpansionStatus.EXPANSION,
-                ), 0
-            )
-        }
-        databaseHandler.insertArtistOfBoardGame(1, 1234, "John Smith")
-        databaseHandler.insertArtistOfBoardGame(1, 1235, "Elizabeth Potter")
-        databaseHandler.insertDesignerOfBoardGame(1, 323, "Carl Carlson")
-        databaseHandler.insertLocationOfBoardGame(1, "Szafa", "Z prawej strony")
-        databaseHandler.insertLocationOfBoardGame(2, "Skrzynia", "Pod książkami")
-        */
+
         //TODO: async loading games from database
         list = databaseHandler.getAllBoardGamesWithoutDetails()
 

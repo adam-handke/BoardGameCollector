@@ -1,6 +1,8 @@
 package com.ubiquitous.boardgamecollector
 
+import android.app.ActivityManager
 import android.graphics.BitmapFactory
+import android.os.AsyncTask
 import android.util.Log
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -15,7 +17,10 @@ import javax.xml.parsers.DocumentBuilderFactory
 
 //TODO: input validation? maybe the API can handle it itself?
 //TODO: loading up-to-date rank for a board game (all board games?)
-class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2") {
+class BoardGameGeek(
+    val baseURL: String = "https://www.boardgamegeek.com/xmlapi2",
+    val longLoadingWarningLimit: Int = 10
+) {
     //uses DOM parsing based on:
     //https://www.geeksforgeeks.org/xml-parsing-in-android-using-dom-parser/
 
@@ -36,7 +41,7 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
         return null
     }
 
-    fun searchBoardGameByName(name: String): List<BoardGame> {
+    fun searchBoardGamesByName(name: String, asyncTask: BGGActivity.APIAsyncTask): List<BoardGame> {
         val list = mutableListOf<BoardGame>()
         try {
             val url = URL("$baseURL/search?query=$name&type=boardgame")
@@ -45,36 +50,40 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
             val doc: Document = docBuilder.parse(url.openStream())
             val nodeList: NodeList = doc.getElementsByTagName("item")
 
-            //iterate through items
-            for (i in 0 until nodeList.length) {
-                if (nodeList.item(0).nodeType === Node.ELEMENT_NODE) {
-                    val boardGame = BoardGame()
-                    val element: Element = nodeList.item(i) as Element
-
-                    //assign bggid
-                    boardGame.bggid = element.getAttribute("id").toInt()
-                    Log.i("searchBoardGameByName", "bggid=${boardGame.bggid}")
-
-                    //assign name
-                    val nameNodeList = element.getElementsByTagName("name")
-                    if (nameNodeList.length > 0) {
-                        val nameElement: Element = nameNodeList.item(0) as Element
-                        if (nameElement.getAttribute("type") == "primary") {
-                            boardGame.originalName = nameElement.getAttribute("value")
-                        } else {
-                            boardGame.name = nameElement.getAttribute("value")
-                        }
-                    }
-                    //assign year published
-                    val yearNodeList = element.getElementsByTagName("yearpublished")
-                    if (yearNodeList.length > 0) {
-                        val yearElement: Element = yearNodeList.item(0) as Element
-                        boardGame.yearPublished = yearElement.getAttribute("value").toInt()
-                    }
-
-                    list.add(boardGame)
-                }
+            if (nodeList.length > longLoadingWarningLimit){
+                asyncTask.publicPublishProgress(nodeList.length)
             }
+
+            //iterate through items
+                for (i in 0 until nodeList.length) {
+                    if (nodeList.item(0).nodeType === Node.ELEMENT_NODE && !asyncTask.isCancelled) {
+                        val boardGame = BoardGame()
+                        val element: Element = nodeList.item(i) as Element
+
+                        //assign bggid
+                        boardGame.bggid = element.getAttribute("id").toInt()
+                        Log.i("searchBoardGameByName", "bggid=${boardGame.bggid}")
+
+                        //assign name
+                        val nameNodeList = element.getElementsByTagName("name")
+                        if (nameNodeList.length > 0) {
+                            val nameElement: Element = nameNodeList.item(0) as Element
+                            if (nameElement.getAttribute("type") == "primary") {
+                                boardGame.originalName = nameElement.getAttribute("value")
+                            } else {
+                                boardGame.name = nameElement.getAttribute("value")
+                            }
+                        }
+                        //assign year published
+                        val yearNodeList = element.getElementsByTagName("yearpublished")
+                        if (yearNodeList.length > 0) {
+                            val yearElement: Element = yearNodeList.item(0) as Element
+                            boardGame.yearPublished = yearElement.getAttribute("value").toInt()
+                        }
+
+                        list.add(boardGame)
+                    }
+                }
         } catch (e: Exception) {
             Log.e(
                 "searchBoardGamesByName_EXCEPTION",
@@ -84,7 +93,7 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
         return list
     }
 
-    fun searchBoardGamesByUsername(username: String): List<BoardGame> {
+    fun searchBoardGamesByUsername(username: String, asyncTask: BGGActivity.APIAsyncTask): List<BoardGame> {
         val list = mutableListOf<BoardGame>()
         try {
             val url = URL("$baseURL/collection?username=$username")
@@ -93,9 +102,13 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
             val doc: Document = docBuilder.parse(url.openStream())
             val nodeList: NodeList = doc.getElementsByTagName("item")
 
+            if (nodeList.length > longLoadingWarningLimit){
+                asyncTask.publicPublishProgress(nodeList.length)
+            }
+
             //iterate through items
             for (i in 0 until nodeList.length) {
-                if (nodeList.item(0).nodeType === Node.ELEMENT_NODE) {
+                if (nodeList.item(0).nodeType === Node.ELEMENT_NODE && !asyncTask.isCancelled) {
                     val element: Element = nodeList.item(i) as Element
                     if (element.getAttribute("subtype") == "boardgame") {
                         val boardGame = BoardGame()
@@ -152,12 +165,15 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
             //get 0-th item - the board game
             if (nodeList.length > 0) {
                 val element: Element = nodeList.item(0) as Element
-                if (element.getAttribute("type") == "boardgame"
-                    && element.getAttribute("id") == bggid.toString()
-                ) {
+                if (element.getAttribute("id") == bggid.toString()) {
                     //assign bggid
                     boardGame.bggid = bggid
                     Log.i("loadBoardGame", "bggid=$bggid")
+
+                    //assign status as expansion if is expansion
+                    if(element.getAttribute("type") == "boardgameexpansion"){
+                        boardGame.baseExpansionStatus = BaseExpansionStatus.EXPANSION
+                    }
 
                     //assign name
                     val nameNodeList = element.getElementsByTagName("name")

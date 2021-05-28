@@ -8,34 +8,100 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.ListView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.textfield.TextInputEditText
 import java.lang.Exception
 
 class BGGActivity : AppCompatActivity() {
     private var searchPhrase: String? = null
-    private var list: List<BoardGame> = listOf()
+    private var apiAsyncTask: APIAsyncTask = APIAsyncTask()
 
-    private fun displaySearchResults() {
+    //displaying search results as
+    fun displaySearchResults(
+        asyncSearchName: Boolean,
+        list: List<BoardGame>,
+        longLoadingWarningAmount: Int? = null
+    ) {
         //TODO: displaying search results in a list view
+
+        val searchResultsListView: ListView = findViewById(R.id.searchResultsList)
+        val stringList = if (longLoadingWarningAmount != null) {
+            //display warning that *longLoadingWarningAmount* results are being loaded
+            listOf(getString(R.string.search_long_loading_warning, longLoadingWarningAmount))
+        } else {
+            if (list.isNotEmpty()) {
+                list.map { it.nameToString(getString(R.string.unnamed_board_game)) }
+            } else {
+                if (asyncSearchName) {
+                    listOf(getString(R.string.search_name_not_found))
+                } else {
+                    listOf(getString(R.string.search_username_not_found))
+                }
+            }
+        }
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, stringList)
+        searchResultsListView.adapter = adapter
     }
 
-    private inner class APIAsyncTask : AsyncTask<String, Int, String>() {
-        override fun doInBackground(vararg params: String?): String? {
+    //async task for loading data from BGG API (by game name or by username)
+    inner class APIAsyncTask : AsyncTask<Boolean, Int, Pair<Boolean, List<BoardGame>>>() {
+        var isRunning = false
+
+        override fun doInBackground(vararg params: Boolean?): Pair<Boolean, List<BoardGame>> {
+            isRunning = true
+            val asyncSearchName = params[0] ?: true //search by: true=game name; false=username
+            val searchPhraseView: TextInputEditText = findViewById(R.id.searchPhrase)
+            val searchPhrase: String = searchPhraseView.text.toString().trim()
             return try {
-                //list = BoardGameGeek().searchBoardGamesByUsername("matt")
-                list = listOf(
-                    BoardGameGeek().loadBoardGame(102794)
-                )
-                "true"
+                when (asyncSearchName) {
+                    true -> Pair(
+                        asyncSearchName,
+                        BoardGameGeek().searchBoardGamesByName(searchPhrase, this)
+                    )
+                    else -> Pair(
+                        asyncSearchName,
+                        BoardGameGeek().searchBoardGamesByUsername(searchPhrase, this)
+                    )
+                }
             } catch (e: Exception) {
-                list = listOf()
-                "false"
+                Log.e(
+                    "searchBoardGamesByName_EXCEPTION",
+                    "search_phrase=$searchPhrase; ${e.message}; ${e.stackTraceToString()}"
+                )
+                Pair(asyncSearchName, listOf())
             }
         }
 
-        override fun onPostExecute(result: String?) {
+        //display warning that *amount* results are being loaded
+        fun publicPublishProgress(amount: Int) {
+            publishProgress(amount)
+        }
+
+        override fun onProgressUpdate(vararg values: Int?) {
+            super.onProgressUpdate(*values)
+            displaySearchResults(true, listOf(), values[0])
+        }
+
+        //commented because toast is incorrectly displayed on first use of AsyncTask
+        override fun onCancelled() {
+            super.onCancelled()
+            if (isRunning) {
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.search_cancelled),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            }
+        }
+
+        override fun onPostExecute(result: Pair<Boolean, List<BoardGame>>) {
             super.onPostExecute(result)
-            displaySearchResults()
+            isRunning = false
+            displaySearchResults(result.first, result.second, null)
         }
     }
 
@@ -47,17 +113,18 @@ class BGGActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.add_bgg_title)
 
-        //TODO
     }
 
-    //TODO:
     fun searchName(view: View) {
-
+        apiAsyncTask.cancel(true)
+        apiAsyncTask = APIAsyncTask()
+        apiAsyncTask.execute(true)
     }
 
-    //TODO:
     fun searchUsername(view: View) {
-
+        apiAsyncTask.cancel(true)
+        apiAsyncTask = APIAsyncTask()
+        apiAsyncTask.execute(false)
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -78,6 +145,7 @@ class BGGActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         super.onBackPressed()
+        apiAsyncTask.cancel(true)
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         Log.i("onBackPressed", searchPhrase.toString())
