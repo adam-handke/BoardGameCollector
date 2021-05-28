@@ -3,6 +3,7 @@ package com.ubiquitous.boardgamecollector
 import android.graphics.Bitmap
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.math.roundToInt
 
 //TODO: add artist, designer, location
 class BoardGame(
@@ -80,5 +81,24 @@ class BoardGame(
         )
     }
 
+    fun getThumbnailResizedByWidth(width: Int, limit: Int = 5): Bitmap? {
+        //default: limit enlargement to 5x bigger
+        return if (thumbnail != null) {
+            val ratio: Float = thumbnail!!.width.toFloat() / thumbnail!!.height.toFloat()
+            val height: Int = (width / ratio).roundToInt()
+            if (thumbnail!!.width * limit < width || thumbnail!!.height * limit < height) {
+                Bitmap.createScaledBitmap(
+                    thumbnail!!,
+                    thumbnail!!.width * limit,
+                    thumbnail!!.height * limit,
+                    false
+                )
+            } else {
+                Bitmap.createScaledBitmap(thumbnail!!, width, height, false)
+            }
+        } else {
+            null
+        }
+    }
 
 }

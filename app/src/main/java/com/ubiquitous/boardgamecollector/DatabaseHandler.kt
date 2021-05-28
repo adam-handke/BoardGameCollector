@@ -12,11 +12,11 @@ import androidx.core.database.getIntOrNull
 import androidx.core.database.getLongOrNull
 import androidx.core.database.getStringOrNull
 import java.io.ByteArrayOutputStream
-import java.lang.Exception
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import kotlin.Exception
 
 class DatabaseHandler(
     context: Context,
@@ -186,16 +186,21 @@ class DatabaseHandler(
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_BOARDGAMES")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_ARTISTS")
-        db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_ARTISTS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_DESIGNERS")
-        db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_DESIGNERS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_LOCATIONS")
-        db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_LOCATIONS")
-        db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_EXPANSIONS")
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_RANK_HISTORY")
-        onCreate(db)
+        try {
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_BOARDGAMES")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_ARTISTS")
+            db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_ARTISTS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_DESIGNERS")
+            db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_DESIGNERS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_LOCATIONS")
+            db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_LOCATIONS")
+            db?.execSQL("DROP TABLE IF EXISTS $LINK_TABLE_BOARDGAMES_EXPANSIONS")
+            db?.execSQL("DROP TABLE IF EXISTS $TABLE_RANK_HISTORY")
+            onCreate(db)
+            Log.i("onUpgrade", "DONE")
+        } catch (e: Exception){
+            Log.e("onUpgrade_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+        }
     }
 
     //TODO: parameterized ORDER BY

@@ -16,6 +16,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import java.lang.Exception
+import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,7 +50,8 @@ class MainActivity : AppCompatActivity() {
                         BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_foreground)
                     )
                 } else {
-                    thumbnail.setImageBitmap(boardGame.thumbnail)
+                    thumbnail.setImageBitmap(boardGame.getThumbnailResizedByWidth(
+                        (0.3 * resources.displayMetrics.widthPixels.toFloat()).roundToInt()))
                 }
 
                 name.text = boardGame.nameToString(getString(R.string.unnamed_board_game))

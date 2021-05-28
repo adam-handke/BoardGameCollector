@@ -12,6 +12,7 @@ import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import kotlin.math.roundToInt
 
 class DetailsActivity : AppCompatActivity() {
 
@@ -108,14 +109,13 @@ class DetailsActivity : AppCompatActivity() {
         detailListView.adapter = adapter
 
         //thumbnail as listview header
-        //TODO: rescale thumbnail to be bigger
         val imageView = ImageView(this)
         if (boardGame.thumbnail == null) {
             imageView.setImageBitmap(
                 BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_foreground)
             )
         } else {
-            imageView.setImageBitmap(boardGame.thumbnail)
+            imageView.setImageBitmap(boardGame.getThumbnailResizedByWidth(resources.displayMetrics.widthPixels))
         }
         detailListView.addHeaderView(imageView)
 

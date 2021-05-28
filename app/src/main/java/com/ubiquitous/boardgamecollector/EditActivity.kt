@@ -48,12 +48,10 @@ import java.util.*
 //serves as both EDIT and ADD activity
 class EditActivity : AppCompatActivity() {
 
-    private var boardGameID = 0
+    private var boardGame = BoardGame()
     private var add = false
-    private var rank: Int = 0
-    private var thumbnail: Bitmap? = null
 
-    private fun initializeFields(boardGame: BoardGame){
+    private fun initializeFields() {
         val minYear = 1600
         val maxYear = 3000
         val minDate = Calendar.getInstance()
@@ -170,7 +168,7 @@ class EditActivity : AppCompatActivity() {
             Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.null_location_name))
             addLocationRadioButton(loc.key, loc.value ?: getString(R.string.null_location_name))
         }
-        val locationID = databaseHandler.getLocationID(boardGameID)
+        val locationID = databaseHandler.getLocationID(boardGame.id ?: 0)
         val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
         for (view in radioButtonGroup.children) {
             if (view.tag == locationID) {
@@ -216,11 +214,9 @@ class EditActivity : AppCompatActivity() {
             super.onPostExecute(result)
             val editLayout: LinearLayout = findViewById(R.id.editLayout)
             editLayout.isEnabled = false
+            boardGame = result
 
-            rank = result.rank
-            thumbnail = result.thumbnail
-
-            initializeFields(result)
+            initializeFields()
         }
     }
 
@@ -231,27 +227,27 @@ class EditActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         val extras = intent.extras ?: return
-        boardGameID = extras.getInt("id")
+        val id = extras.getInt("id")
         val bggid = extras.getInt("bggid")
 
         // setting up edit/add/addBGG activity
         val databaseHandler = DatabaseHandler.getInstance(this)
-        val boardGame: BoardGame = if (boardGameID == 0) {
+        boardGame = if (id == 0) {
             add = true
             supportActionBar?.setTitle(R.string.add_title)
             if (bggid > 0) {
                 APIAsyncTask().execute(bggid)
             }
-            BoardGame()
+            BoardGame(bggid = bggid)
         } else {
             add = false
             supportActionBar?.setTitle(R.string.edit_title)
-            databaseHandler.getBoardGameDetails(boardGameID)
+            databaseHandler.getBoardGameDetails(id)
         }
         databaseHandler.close()
 
         addLocationRadioButton(0, getString(R.string.noneSelected))
-        initializeFields(boardGame)
+        initializeFields()
     }
 
     private fun addLocationRadioButton(locationID: Int, locationName: String) {
@@ -273,7 +269,12 @@ class EditActivity : AppCompatActivity() {
         if (locationID > 0) {
             val databaseHandler = DatabaseHandler.getInstance(this)
             editLocationComment.isEnabled = true
-            editLocationComment.setText(databaseHandler.getLocationComment(boardGameID, locationID))
+            editLocationComment.setText(
+                databaseHandler.getLocationComment(
+                    boardGame.id ?: 0,
+                    locationID
+                )
+            )
             databaseHandler.close()
         } else {
             editLocationComment.isEnabled = false
@@ -310,9 +311,12 @@ class EditActivity : AppCompatActivity() {
                 if (add) {
                     val intent = Intent(this, MainActivity::class.java)
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    intent.putExtra("id", boardGameID)
+                    intent.putExtra("id", boardGame.id)
                     intent.putExtra("add", add)
-                    Log.i("onBackPressed_CancelAdd", "id=$boardGameID; add=$add")
+                    Log.i(
+                        "onBackPressed_CancelAdd",
+                        "id=${boardGame.id}; bggid={${boardGame.bggid}; add=$add"
+                    )
                     startActivity(intent)
                 } else {
                     onBackPressed()
@@ -324,8 +328,6 @@ class EditActivity : AppCompatActivity() {
 
                 //UPDATE DATABASE
                 val databaseHandler = DatabaseHandler.getInstance(this)
-                val boardGame = BoardGame()
-                boardGame.id = boardGameID
 
                 val editName: TextInputEditText = findViewById(R.id.editName)
                 boardGame.name = when (editName.text.toString().trim()) {
@@ -421,12 +423,9 @@ class EditActivity : AppCompatActivity() {
                     else -> editLocationComment.text.toString()
                 }
 
-                //adding from BGG special assignment
-                boardGame.rank = rank //TODO: add to rank history
-                boardGame.thumbnail = thumbnail
-
                 if (add) {
-                    boardGameID = databaseHandler.insertBoardGame(boardGame, locationID)
+                    //TODO: add artists & designers when game from BGG
+                    boardGame.id = databaseHandler.insertBoardGame(boardGame, locationID)
                 } else {
                     databaseHandler.updateBoardGame(boardGame, locationID)
                 }
@@ -434,10 +433,13 @@ class EditActivity : AppCompatActivity() {
 
                 val intent = Intent(this, DetailsActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                intent.putExtra("id", boardGameID)
+                intent.putExtra("id", boardGame.id)
                 intent.putExtra("edit", true)
                 intent.putExtra("add", add)
-                Log.i("goToDetailsActivity", "id=$boardGameID; edit=true; add=$add")
+                Log.i(
+                    "goToDetailsActivity",
+                    "id=${boardGame.id}; bggid=${boardGame.bggid}; edit=true; add=$add"
+                )
                 startActivity(intent)
                 true
             }
@@ -449,10 +451,10 @@ class EditActivity : AppCompatActivity() {
         super.onBackPressed()
         val intent = Intent(this, DetailsActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        intent.putExtra("id", boardGameID)
+        intent.putExtra("id", boardGame.id)
         intent.putExtra("edit", false)
         intent.putExtra("add", add)
-        Log.i("goToDetailsActivity", "id=$boardGameID; edit=false; add=$add")
+        Log.i("goToDetailsActivity", "id=${boardGame.id}; bggid={${boardGame.bggid}; edit=false; add=$add")
         startActivity(intent)
     }
 }

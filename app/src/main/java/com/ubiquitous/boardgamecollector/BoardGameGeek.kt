@@ -1,6 +1,8 @@
 package com.ubiquitous.boardgamecollector
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.text.Html
 import android.util.Log
 import org.w3c.dom.Document
 import org.w3c.dom.Element
@@ -11,6 +13,7 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.math.roundToInt
 
 
 //TODO: input validation? maybe the API can handle it itself?
@@ -202,10 +205,11 @@ class BoardGameGeek(
                         }
 
                         //assign description
-                        boardGame.description = getNodeValue("description", element)
+                        boardGame.description = Html.fromHtml(getNodeValue("description", element)).toString()
 
                         //assign thumbnail
-                        val thumbnailURL = getNodeValue("thumbnail", element)
+                        //val thumbnailURL = getNodeValue("image", element) //load big image
+                        val thumbnailURL = getNodeValue("thumbnail", element) //load small image
                         if (thumbnailURL != null) {
                             val connection: HttpURLConnection =
                                 URL(thumbnailURL).openConnection() as HttpURLConnection
@@ -276,9 +280,11 @@ class BoardGameGeek(
                                             rankElement.getAttribute("name") == "boardgame"
                                         ) {
                                             try {
-                                                boardGame.rank =
-                                                    rankElement.getAttribute("value").toInt()
-                                            } catch (e: Exception){
+                                                if (rankElement.getAttribute("value") != "Not Ranked") {
+                                                    boardGame.rank =
+                                                        rankElement.getAttribute("value").toInt()
+                                                }
+                                            } catch (e: Exception) {
                                                 Log.e(
                                                     "loadBoardGame_RANK_EXCEPTION",
                                                     "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
