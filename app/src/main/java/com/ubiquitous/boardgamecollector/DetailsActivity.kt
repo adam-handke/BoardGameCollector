@@ -27,7 +27,7 @@ class DetailsActivity : AppCompatActivity() {
         //supportActionBar?.setDisplayUseLogoEnabled(true)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         //supportActionBar?.setHomeAsUpIndicator(R.mipmap.ic_launcher)
-        supportActionBar?.setTitle(R.string.details)
+        supportActionBar?.setTitle(R.string.details_title)
 
         val extras = intent.extras ?: return
         boardGameID = extras.getInt("id")

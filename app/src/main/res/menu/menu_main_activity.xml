@@ -6,14 +6,15 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/sort_by_rank"
+            android:title="@string/sort_by_rank" />
+        <item
             android:id="@+id/sort_by_name"
             android:title="@string/sort_by_name" />
         <item
             android:id="@+id/sort_by_year"
             android:title="@string/sort_by_year" />
-        <item
-            android:id="@+id/sort_by_rank"
-            android:title="@string/sort_by_rank" />
+
     </group>
 
     <item
@@ -27,6 +28,12 @@
     <item
         android:id="@+id/add"
         android:title="@string/add"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/addBGG"
+        android:title="@string/add_bgg_title"
         android:visible="true"
         app:showAsAction="never" />
 

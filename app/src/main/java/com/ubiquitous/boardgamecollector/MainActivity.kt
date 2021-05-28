@@ -159,6 +159,12 @@ class MainActivity : AppCompatActivity() {
                 Log.i("goToEditActivity_ADD", "id=0")
                 startActivity(intent)
             }
+            R.id.addBGG -> {
+                val intent = Intent(this, BGGActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                Log.i("goToBGGActivity_ADD", "id=0")
+                startActivity(intent)
+            }
             R.id.resetCollection -> {
                 val databaseHandler = DatabaseHandler.getInstance(this)
                 databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1)

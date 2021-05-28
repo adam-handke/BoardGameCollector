@@ -13,7 +13,7 @@ import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
 
-//TODO: input validation?
+//TODO: input validation? maybe the API can handle it itself?
 //TODO: loading up-to-date rank for a board game (all board games?)
 class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2") {
     //uses DOM parsing based on:
@@ -166,7 +166,11 @@ class BoardGameGeek(val baseURL: String = "https://www.boardgamegeek.com/xmlapi2
                         if (nameElement.getAttribute("type") == "primary") {
                             boardGame.originalName = nameElement.getAttribute("value")
                         }
-                        //TODO: alternate name? - no language indication in the API :(
+                        //TODO: boardGame.name
+                        // maybe the user should choose out of all names (alternate and primary)?
+                        // pop-up window with name choice?
+                        // no language indication in the API :(
+
                     }
 
                     //assign year published

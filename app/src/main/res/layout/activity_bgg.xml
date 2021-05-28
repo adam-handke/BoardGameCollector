@@ -1,9 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".BGGActivity">
+    android:layout_height="wrap_content"
+    android:animateLayoutChanges="true"
+    android:background="@color/secondary"
+    android:orientation="vertical"
+    tools:context="BGGActivity">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/search_phrase"
+        app:boxBackgroundColor="@color/secondary">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/searchPhrase"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ListView
+            android:id="@+id/searchResultsList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:animateLayoutChanges="true"
+            android:clickable="true" />
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:padding="10dp">
+
+            <Button
+                android:id="@+id/searchName"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:onClick="searchName"
+                android:text="@string/search_name"
+                android:textAlignment="center"
+                android:textSize="12sp" />
+
+            <Button
+                android:id="@+id/searchUsername"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:onClick="searchUsername"
+                android:text="@string/search_username"
+                android:textAlignment="center"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+</LinearLayout>

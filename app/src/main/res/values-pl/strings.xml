@@ -14,7 +14,7 @@
     <string name="designers">Projektanci</string>
     <string name="barcode">Kod kreskowy</string>
     <string name="mpn">Numer części producenta (MPN)</string>
-    <string name="rank">Aktualna pozycja w rankingu BGG</string>
+    <string name="rank">Pozycja w rankingu BGG</string>
     <string name="base_expansion_status">Podstawka / Dodatek</string>
     <string name="comment">Komentarz</string>
     <string name="location">Lokalizacja</string>
@@ -27,7 +27,7 @@
     <string name="sort_by_year">Sortuj wg roku</string>
     <string name="sort_by_rank">Sortuj wg rankingu</string>
     <string name="edit_title">Edytuj szczegóły</string>
-    <string name="details">Szczegóły gry planszowej</string>
+    <string name="details_title">Szczegóły gry planszowej</string>
     <string name="board_game_edited">Edytowano grę planszową!</string>
     <string name="editing_cancelled">Edycja gry planszowej została anulowana!</string>
     <string name="hide_expansions">Ukryj dodatki</string>
@@ -35,11 +35,16 @@
     <string name="delete">Usuń</string>
     <string name="noneSelected">Brak</string>
     <string name="unnamed_board_game">Nienazwana gra planszowa</string>
-    <string name="add">Dodaj</string>
+    <string name="add">Dodaj ręcznie</string>
     <string name="adding_cancelled">Dodawanie gry planszowej zostało anulowane!</string>
     <string name="add_title">Dodaj grę planszową</string>
     <string name="board_game_added">Dodano grę planszową!</string>
     <string name="error">BŁĄD</string>
     <string name="board_game_deleted">Usunięto grę planszową!</string>
     <string name="reset_collection">Zresetuj kolekcję</string>
+    <string name="search_name">Wyszukaj po nazwie gry planszowej</string>
+    <string name="add_bgg_title">Dodaj z Board Game Geek</string>
+    <string name="search_username">Wyszukaj w kolekcji użytkownika</string>
+    <string name="search_phrase">Szukana fraza (nazwa gry / nazwa użytkownika)</string>
+    <string name="add_all">Dodaj wszystkie wyniki wyszukiwania</string>
 </resources>
