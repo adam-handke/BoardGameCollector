@@ -108,6 +108,7 @@ class DetailsActivity : AppCompatActivity() {
         detailListView.adapter = adapter
 
         //thumbnail as listview header
+        //TODO: rescale thumbnail to be bigger
         val imageView = ImageView(this)
         if (boardGame.thumbnail == null) {
             imageView.setImageBitmap(

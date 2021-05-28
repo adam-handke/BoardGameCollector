@@ -51,4 +51,5 @@
     <string name="search_username_not_found">Such user has no board games in collection or does not exist</string>
     <string name="search_long_loading_warning">Please wait - loading %1$d search results is in progress</string>
     <string name="search_cancelled">Loading search results was cancelled</string>
+    <string name="loading_board_game">Loading board game from Board Game Geek</string>
 </resources>

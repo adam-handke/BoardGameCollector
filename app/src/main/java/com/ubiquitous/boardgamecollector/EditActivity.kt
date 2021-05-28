@@ -1,6 +1,8 @@
 package com.ubiquitous.boardgamecollector
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,6 +15,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.children
 import com.google.android.material.textfield.TextInputEditText
+import java.lang.Exception
 import java.time.LocalDate
 import java.util.*
 
@@ -47,13 +50,10 @@ class EditActivity : AppCompatActivity() {
 
     private var boardGameID = 0
     private var add = false
+    private var rank: Int = 0
+    private var thumbnail: Bitmap? = null
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
+    private fun initializeFields(boardGame: BoardGame){
         val minYear = 1600
         val maxYear = 3000
         val minDate = Calendar.getInstance()
@@ -62,23 +62,7 @@ class EditActivity : AppCompatActivity() {
         maxDate.set(maxYear, 11, 31)
         val databaseHandler = DatabaseHandler.getInstance(this)
 
-        val extras = intent.extras ?: return
-        boardGameID = extras.getInt("id")
-
-        // setting up edit/add activity
-        val boardGame: BoardGame
-        if (boardGameID == 0) {
-            add = true
-            supportActionBar?.setTitle(R.string.add_title)
-            boardGame = BoardGame()
-        } else {
-            add = false
-            supportActionBar?.setTitle(R.string.edit_title)
-            boardGame = databaseHandler.getBoardGameDetails(boardGameID)
-        }
-
         //initial filling with values
-
         val editName: TextInputEditText = findViewById(R.id.editName)
         editName.setText(boardGame.name)
 
@@ -181,7 +165,6 @@ class EditActivity : AppCompatActivity() {
         val editComment: TextInputEditText = findViewById(R.id.editComment)
         editComment.setText(boardGame.comment)
 
-        addLocationRadioButton(0, getString(R.string.noneSelected))
         val locations = databaseHandler.getAllLocations()
         for (loc in locations) {
             Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.null_location_name))
@@ -198,7 +181,77 @@ class EditActivity : AppCompatActivity() {
         }
         databaseHandler.close()
         loadLocationComment(radioButtonGroup) //unnecessary parameter
+    }
 
+    //async task for loading data from BGG API (by game bggid)
+    inner class APIAsyncTask : AsyncTask<Int, Int, BoardGame>() {
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            val editLayout: LinearLayout = findViewById(R.id.editLayout)
+            editLayout.isEnabled = false
+
+            val toast = Toast.makeText(
+                applicationContext,
+                getString(R.string.loading_board_game),
+                Toast.LENGTH_SHORT
+            )
+            toast.show()
+        }
+
+        override fun doInBackground(vararg params: Int?): BoardGame {
+            val bggid = params[0]
+            return try {
+                BoardGameGeek().loadBoardGame(bggid ?: 0)
+            } catch (e: Exception) {
+                Log.e(
+                    "doInBackground_EXCEPTION",
+                    "search_phrase=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                )
+                BoardGame()
+            }
+        }
+
+        override fun onPostExecute(result: BoardGame) {
+            super.onPostExecute(result)
+            val editLayout: LinearLayout = findViewById(R.id.editLayout)
+            editLayout.isEnabled = false
+
+            rank = result.rank
+            thumbnail = result.thumbnail
+
+            initializeFields(result)
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_edit)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val extras = intent.extras ?: return
+        boardGameID = extras.getInt("id")
+        val bggid = extras.getInt("bggid")
+
+        // setting up edit/add/addBGG activity
+        val databaseHandler = DatabaseHandler.getInstance(this)
+        val boardGame: BoardGame = if (boardGameID == 0) {
+            add = true
+            supportActionBar?.setTitle(R.string.add_title)
+            if (bggid > 0) {
+                APIAsyncTask().execute(bggid)
+            }
+            BoardGame()
+        } else {
+            add = false
+            supportActionBar?.setTitle(R.string.edit_title)
+            databaseHandler.getBoardGameDetails(boardGameID)
+        }
+        databaseHandler.close()
+
+        addLocationRadioButton(0, getString(R.string.noneSelected))
+        initializeFields(boardGame)
     }
 
     private fun addLocationRadioButton(locationID: Int, locationName: String) {
@@ -267,6 +320,7 @@ class EditActivity : AppCompatActivity() {
                 true
             }
             R.id.checkMark -> {
+                //TODO: on ADD BGG mode: insert artists, designers, rank
 
                 //UPDATE DATABASE
                 val databaseHandler = DatabaseHandler.getInstance(this)
@@ -366,6 +420,10 @@ class EditActivity : AppCompatActivity() {
                     "" -> null
                     else -> editLocationComment.text.toString()
                 }
+
+                //adding from BGG special assignment
+                boardGame.rank = rank //TODO: add to rank history
+                boardGame.thumbnail = thumbnail
 
                 if (add) {
                     boardGameID = databaseHandler.insertBoardGame(boardGame, locationID)

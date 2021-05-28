@@ -51,4 +51,5 @@
     <string name="search_username_not_found">Taki użytkownik nie ma żadnych gier planszowych w kolekcji lub nie istnieje</string>
     <string name="search_long_loading_warning">Proszę czekać - trwa ładowanie %1$d wyników wyszukiwania</string>
     <string name="search_cancelled">Ładowanie wyników wyszukiwania zostało przerwane</string>
+    <string name="loading_board_game">Ładowanie gry z Board Game Geek</string>
 </resources>

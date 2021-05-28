@@ -569,7 +569,7 @@ class DatabaseHandler(
     }
 
     //TODO: if value is null then put null (may by necessary to preserve nullness)
-    //TODO: artists, designers, expansions
+    //TODO: artists, designers, expansions, ranks
     fun insertBoardGame(boardGame: BoardGame, locationID: Int): Int {
         val db = this.writableDatabase
 
@@ -594,7 +594,7 @@ class DatabaseHandler(
         values.put(COLUMN_BARCODE, boardGame.barcode)
         values.put(COLUMN_BGGID, boardGame.bggid)
         values.put(COLUMN_MPN, boardGame.mpn)
-        values.put(COLUMN_RANK, boardGame.rank)
+        values.put(COLUMN_RANK, boardGame.rank) //TODO: should be done separately, with rank history
         values.put(COLUMN_BASE_EXPANSION_STATUS, boardGame.baseExpansionStatus.name)
         values.put(COLUMN_COMMENT, boardGame.comment)
         val byteArrayOutputStream = ByteArrayOutputStream()

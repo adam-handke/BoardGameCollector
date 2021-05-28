@@ -18,6 +18,7 @@ import java.lang.Exception
 class BGGActivity : AppCompatActivity() {
     private var searchPhrase: String? = null
     private var apiAsyncTask: APIAsyncTask = APIAsyncTask()
+    private var mapPositionBGGID: MutableMap<Int, Int> = mutableMapOf()
 
     //displaying search results as
     fun displaySearchResults(
@@ -26,13 +27,16 @@ class BGGActivity : AppCompatActivity() {
         longLoadingWarningAmount: Int? = null
     ) {
         //TODO: displaying search results in a list view
-
+        mapPositionBGGID.clear()
         val searchResultsListView: ListView = findViewById(R.id.searchResultsList)
         val stringList = if (longLoadingWarningAmount != null) {
             //display warning that *longLoadingWarningAmount* results are being loaded
             listOf(getString(R.string.search_long_loading_warning, longLoadingWarningAmount))
         } else {
             if (list.isNotEmpty()) {
+                for(i in list.indices){
+                    mapPositionBGGID[i] = list[i].bggid
+                }
                 list.map { it.nameToString(getString(R.string.unnamed_board_game)) }
             } else {
                 if (asyncSearchName) {
@@ -68,7 +72,7 @@ class BGGActivity : AppCompatActivity() {
                 }
             } catch (e: Exception) {
                 Log.e(
-                    "searchBoardGamesByName_EXCEPTION",
+                    "doInBackground_EXCEPTION",
                     "search_phrase=$searchPhrase; ${e.message}; ${e.stackTraceToString()}"
                 )
                 Pair(asyncSearchName, listOf())
@@ -112,6 +116,23 @@ class BGGActivity : AppCompatActivity() {
         setContentView(R.layout.activity_bgg)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.setTitle(R.string.add_bgg_title)
+
+        val searchResultsListView: ListView = findViewById(R.id.searchResultsList)
+        searchResultsListView.setOnItemClickListener { _, _, position, _ ->
+            if(mapPositionBGGID.isNotEmpty()){
+                //go to edit activity to add a board game by BGGID
+                apiAsyncTask.cancel(true)
+                val bggid = mapPositionBGGID[position]
+
+                val intent = Intent(this, EditActivity::class.java)
+                intent.putExtra("id", 0)
+                intent.putExtra("bggid", bggid)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                Log.i("goToEditActivity_ADD_BGG", "id=0; bggid=$bggid")
+                startActivity(intent)
+            }
+
+        }
 
     }
 
