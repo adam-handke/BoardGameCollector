@@ -52,4 +52,11 @@
     <string name="search_long_loading_warning">Proszę czekać - trwa ładowanie %1$d wyników wyszukiwania</string>
     <string name="search_cancelled">Ładowanie wyników wyszukiwania zostało przerwane</string>
     <string name="loading_board_game">Ładowanie gry z Board Game Geek</string>
+    <string name="search_add_all_wait">Trwa dodawanie wszystkich %1$d wyników wyszukiwania - to może zająć chwilę</string>
+    <string name="search_add_all_empty">Brak gier planszowych do dodania</string>
+    <string name="display_all_please_wait">Proszę czekać - trwa ładowanie %1$d gier planszowych</string>
+    <string name="loading_cancelled">Ładowanie gier planszowych zostało przerwane</string>
+    <string name="added_X_games">Dodano %1$d gier planszowych z wyników wyszukiwania</string>
+    <string name="reset_done">Kolekcja gier planszowych została zresetowana</string>
+    <string name="search_add_all_cancelled">Dodawanie wszystkich %1$d wyników wyszukiwania zostało przerwane</string>
 </resources>

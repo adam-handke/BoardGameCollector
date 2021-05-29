@@ -198,7 +198,7 @@ class DatabaseHandler(
             db?.execSQL("DROP TABLE IF EXISTS $TABLE_RANK_HISTORY")
             onCreate(db)
             Log.i("onUpgrade", "DONE")
-        } catch (e: Exception){
+        } catch (e: Exception) {
             Log.e("onUpgrade_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
         }
     }
@@ -272,6 +272,25 @@ class DatabaseHandler(
         }
         db.close()
         return list
+    }
+
+    fun countBoardGames(): Int {
+        var count = 0
+
+        val db = this.writableDatabase
+        val cursor = db.rawQuery("SELECT COUNT(*) FROM $TABLE_BOARDGAMES", null)
+        try {
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0)
+            }
+        } catch (e: Exception) {
+            Log.e("countBoardGames_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+        } finally {
+            cursor.close()
+        }
+        db.close()
+
+        return count
     }
 
     fun getAllLocations(): Map<Int, String?> {
@@ -371,7 +390,10 @@ class DatabaseHandler(
                     pair = Pair(cursor.getStringOrNull(0), cursor.getStringOrNull(1))
                 }
             } catch (e: Exception) {
-                Log.e("getLocationNameAndComment_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+                Log.e(
+                    "getLocationNameAndComment_EXCEPTION",
+                    "${e.message}; ${e.stackTraceToString()}"
+                )
             } finally {
                 cursor.close()
             }
@@ -613,7 +635,7 @@ class DatabaseHandler(
             updateLocationOfBoardGame(id, locationID, boardGame.locationComment)
         }
         Log.i("insertBoardGame", "rank=${boardGame.rank}")
-        if (boardGame.rank > 0){
+        if (boardGame.rank > 0) {
             //save rank in rank history
             insertRankHistoryRecord(id, boardGame.rank)
         }
@@ -652,7 +674,10 @@ class DatabaseHandler(
                     artistID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertArtistOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+                Log.e(
+                    "insertArtistOfBoardGame_EXCEPTION",
+                    "${e.message}; ${e.stackTraceToString()}"
+                )
             } finally {
                 cursor.close()
             }
@@ -695,7 +720,10 @@ class DatabaseHandler(
                     designerID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertDesignerOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+                Log.e(
+                    "insertDesignerOfBoardGame_EXCEPTION",
+                    "${e.message}; ${e.stackTraceToString()}"
+                )
             } finally {
                 cursor.close()
             }
@@ -740,7 +768,10 @@ class DatabaseHandler(
                     locationID = cursor.getInt(0)
                 }
             } catch (e: Exception) {
-                Log.e("insertLocationOfBoardGame_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+                Log.e(
+                    "insertLocationOfBoardGame_EXCEPTION",
+                    "${e.message}; ${e.stackTraceToString()}"
+                )
             } finally {
                 cursor.close()
             }

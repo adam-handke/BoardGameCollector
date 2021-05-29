@@ -52,4 +52,11 @@
     <string name="search_long_loading_warning">Please wait - loading %1$d search results is in progress</string>
     <string name="search_cancelled">Loading search results was cancelled</string>
     <string name="loading_board_game">Loading board game from Board Game Geek</string>
+    <string name="search_add_all_wait">Adding all %1$d search results - it may take a while</string>
+    <string name="search_add_all_empty">No board games to add</string>
+    <string name="display_all_please_wait">Please wait - loading %1$d board games</string>
+    <string name="loading_cancelled">Loading board games was cancelled</string>
+    <string name="added_X_games">Added %1$d board games from search results</string>
+    <string name="reset_done">Board game collection was reset</string>
+    <string name="search_add_all_cancelled">Adding all %1$d search results was interrupted</string>
 </resources>

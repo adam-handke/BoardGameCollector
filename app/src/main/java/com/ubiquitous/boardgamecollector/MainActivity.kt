@@ -1,5 +1,6 @@
 package com.ubiquitous.boardgamecollector
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
@@ -15,6 +16,7 @@ import android.widget.TableLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
+import com.google.android.material.textfield.TextInputEditText
 import java.lang.Exception
 import java.util.*
 import kotlin.math.roundToInt
@@ -23,9 +25,11 @@ class MainActivity : AppCompatActivity() {
 
     //TODO: sort by order of adding?
     //TODO: table header with column description?
+    private var loadAsyncTask: MainActivity.LoadAsyncTask = LoadAsyncTask()
     private var sortBy = R.id.sort_by_name
     private var hideExpansions = true
     private var list: List<BoardGame> = listOf()
+    private val context = this
 
     private fun displayBoardGames() {
         //sorting
@@ -81,6 +85,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    //async task for loading games
+    inner class LoadAsyncTask : AsyncTask<Int, Int, List<BoardGame>>() {
+        var isRunning = false
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            //display toast with how many games there are to load
+            val databaseHandler = DatabaseHandler.getInstance(context)
+            val count: Int = databaseHandler.countBoardGames()
+            databaseHandler.close()
+
+            if(count > 100){    //only show load-warning toast when more than X games in database
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.display_all_please_wait, count),
+                    Toast.LENGTH_LONG
+                )
+                toast.show()
+            }
+        }
+
+        override fun doInBackground(vararg params: Int?): List<BoardGame> {
+            isRunning = true
+            val databaseHandler = DatabaseHandler.getInstance(context)
+            return try {
+                databaseHandler.getAllBoardGamesWithoutDetails()
+            } catch (e: Exception) {
+                Log.e("LoadAsyncTask_doInBackground_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+                listOf()
+            }
+        }
+
+        override fun onCancelled() {
+            super.onCancelled()
+            if (isRunning) {
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.loading_cancelled),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            }
+        }
+
+        override fun onPostExecute(result: List<BoardGame>) {
+            super.onPostExecute(result)
+            isRunning = false
+            list = result
+            displayBoardGames()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
@@ -106,15 +162,10 @@ class MainActivity : AppCompatActivity() {
             )
             toast.show()
         }
-
-        val databaseHandler = DatabaseHandler.getInstance(this)
         //databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1) //reset
 
-        //TODO: async loading games from database
-        list = databaseHandler.getAllBoardGamesWithoutDetails()
-
-        databaseHandler.close()
-        displayBoardGames()
+        //async loading games from database
+        loadAsyncTask.execute()
 
         //TODO: options menu: locations, artists, designers screens; updating ranks
     }
@@ -139,9 +190,12 @@ class MainActivity : AppCompatActivity() {
                 Log.i("onOptionsItemSelected", "hideExpansions=" + item.isChecked.toString())
                 item.isChecked = !item.isChecked
                 hideExpansions = item.isChecked
-                displayBoardGames()
+                loadAsyncTask.cancel(true)
+                loadAsyncTask = LoadAsyncTask()
+                loadAsyncTask.execute()
             }
             R.id.add -> {
+                loadAsyncTask.cancel(true)
                 val intent = Intent(this, EditActivity::class.java)
                 intent.putExtra("id", 0)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -149,29 +203,45 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
             R.id.addBGG -> {
+                loadAsyncTask.cancel(true)
                 val intent = Intent(this, BGGActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 Log.i("goToBGGActivity_ADD", "id=0")
                 startActivity(intent)
             }
             R.id.resetCollection -> {
+                loadAsyncTask.cancel(true)
                 val databaseHandler = DatabaseHandler.getInstance(this)
                 databaseHandler.onUpgrade(databaseHandler.writableDatabase, 1, 1)
                 databaseHandler.close()
                 list = listOf()
-                displayBoardGames()
+                loadAsyncTask.cancel(true)
+                loadAsyncTask = LoadAsyncTask()
+                loadAsyncTask.execute()
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.reset_done),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
             }
             R.id.sort_by_name -> {
                 sortBy = item.itemId
-                displayBoardGames()
+                loadAsyncTask.cancel(true)
+                loadAsyncTask = LoadAsyncTask()
+                loadAsyncTask.execute()
             }
             R.id.sort_by_rank -> {
                 sortBy = item.itemId
-                displayBoardGames()
+                loadAsyncTask.cancel(true)
+                loadAsyncTask = LoadAsyncTask()
+                loadAsyncTask.execute()
             }
             R.id.sort_by_year -> {
                 sortBy = item.itemId
-                displayBoardGames()
+                loadAsyncTask.cancel(true)
+                loadAsyncTask = LoadAsyncTask()
+                loadAsyncTask.execute()
             }
             else -> {
                 super.onOptionsItemSelected(item)
@@ -181,6 +251,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun goToDetails(v: View) {
+        loadAsyncTask.cancel(true)
         val intent = Intent(this, DetailsActivity::class.java)
         val id = v.tag as Int
         intent.putExtra("id", id)
