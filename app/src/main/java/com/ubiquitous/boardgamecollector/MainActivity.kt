@@ -16,11 +16,13 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
 import java.lang.Exception
+import java.util.*
 import kotlin.math.roundToInt
 
 class MainActivity : AppCompatActivity() {
 
-    //TODO: sort by date added?
+    //TODO: sort by order of adding?
+    //TODO: table header with column description?
     private var sortBy = R.id.sort_by_name
     private var hideExpansions = true
     private var list: List<BoardGame> = listOf()
@@ -28,14 +30,29 @@ class MainActivity : AppCompatActivity() {
     private fun displayBoardGames() {
         //sorting
         list = when (sortBy) {
-            R.id.sort_by_year -> list.sortedBy { it.yearPublished }
-            R.id.sort_by_rank -> list.sortedBy { it.rank }
-            else -> list.sortedBy { it.name }
+            R.id.sort_by_year -> list.sortedBy {
+                when (it.yearPublished) {
+                    null -> Int.MAX_VALUE   //year=null -> sorted as last
+                    else -> it.yearPublished
+                }
+            }
+            R.id.sort_by_rank -> list.sortedBy {
+                when (it.rank) {
+                    0 -> Int.MAX_VALUE  //rank=0 -> sorted as last
+                    else -> it.rank
+                }
+            }
+            else -> list.sortedBy {
+                it.nameToString("~").toLowerCase(Locale.ROOT) //unnamed -> sorted as last
+            }
         }
         val tableLayout: TableLayout = findViewById(R.id.tableLayout)
         tableLayout.removeAllViews()
         for (boardGame in list) {
-            Log.i("displayBoardGame", "id=${boardGame.id}; name=${boardGame.name}")
+            Log.i(
+                "displayBoardGame",
+                "id=${boardGame.id}; name=${boardGame.nameToString(getString(R.string.unnamed_board_game))}"
+            )
             if (!(boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION && hideExpansions)) {
                 val tableRow: View =
                     LayoutInflater.from(this).inflate(R.layout.table_item, null, false)
@@ -50,8 +67,11 @@ class MainActivity : AppCompatActivity() {
                         BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher_foreground)
                     )
                 } else {
-                    thumbnail.setImageBitmap(boardGame.getThumbnailResizedByWidth(
-                        (0.3 * resources.displayMetrics.widthPixels.toFloat()).roundToInt()))
+                    thumbnail.setImageBitmap(
+                        boardGame.getThumbnailResizedByWidth(
+                            (0.3 * resources.displayMetrics.widthPixels.toFloat()).roundToInt()
+                        )
+                    )
                 }
 
                 name.text = boardGame.nameToString(getString(R.string.unnamed_board_game))
@@ -96,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         databaseHandler.close()
         displayBoardGames()
 
-        //TODO: options menu: add from BGG, BGG screen, locations screen (artists, designers screens?)
+        //TODO: options menu: locations, artists, designers screens; updating ranks
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

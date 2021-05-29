@@ -1,6 +1,5 @@
 package com.ubiquitous.boardgamecollector
 
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.text.Html
 import android.util.Log
@@ -13,8 +12,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.math.roundToInt
-
 
 //TODO: input validation? maybe the API can handle it itself?
 //TODO: loading up-to-date rank for a board game (all board games?)
@@ -161,7 +158,8 @@ class BoardGameGeek(
 
     //TODO: rank, designers, artists and expansions inside BoardGame - must be handled afterwards
     fun loadBoardGame(bggid: Int): BoardGame {
-        val boardGame = BoardGame()
+        val boardGame = BoardGame(bggid = bggid)
+        Log.i("loadBoardGame", "bggid=$bggid")
         if (bggid > 0) {
             try {
                 val url = URL("$baseURL/thing?id=$bggid&stats=1")
@@ -174,9 +172,6 @@ class BoardGameGeek(
                 if (nodeList.length > 0) {
                     val element: Element = nodeList.item(0) as Element
                     if (element.getAttribute("id") == bggid.toString()) {
-                        //assign bggid
-                        boardGame.bggid = bggid
-                        Log.i("loadBoardGame", "bggid=$bggid")
 
                         //assign status as expansion if is expansion
                         if (element.getAttribute("type") == "boardgameexpansion") {
@@ -192,7 +187,7 @@ class BoardGameGeek(
                             }
                             //TODO: boardGame.name
                             // maybe the user should choose out of all names (alternate and primary)?
-                            // pop-up window with name choice?
+                            // pop-up window with name choice? autofill choices?
                             // no language indication in the API :(
 
                         }
@@ -205,7 +200,8 @@ class BoardGameGeek(
                         }
 
                         //assign description
-                        boardGame.description = Html.fromHtml(getNodeValue("description", element)).toString()
+                        boardGame.description =
+                            Html.fromHtml(getNodeValue("description", element)).toString()
 
                         //assign thumbnail
                         //val thumbnailURL = getNodeValue("image", element) //load big image
@@ -223,7 +219,7 @@ class BoardGameGeek(
                         val artists = mutableMapOf<Int, String?>()
                         val designers = mutableMapOf<Int, String?>()
                         val expansions = mutableMapOf<Int, String?>()
-                        val linkNodeList: NodeList = doc.getElementsByTagName("link")
+                        val linkNodeList: NodeList = element.getElementsByTagName("link") //doc?
                         for (i in 0 until linkNodeList.length) {
                             if (linkNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
                                 val linkElement: Element = linkNodeList.item(i) as Element
@@ -262,37 +258,31 @@ class BoardGameGeek(
                         boardGame.expansions = expansions
 
                         //assign rank
-                        val statisticsNodeList = element.getElementsByTagName("statistics")
-                        if (statisticsNodeList.length > 0) {
-                            val statisticsElement: Element = statisticsNodeList.item(0) as Element
+                        val rankNodeList: NodeList = element.getElementsByTagName("rank")
+                        for (i in 0 until rankNodeList.length) {
+                            if (rankNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
+                                val rankElement: Element = rankNodeList.item(i) as Element
 
-                            val ranksNodeList = statisticsElement.getElementsByTagName("ranks")
-                            if (ranksNodeList.length > 0) {
-                                val ranksElement: Element = ranksNodeList.item(0) as Element
-
-                                val rankNodeList: NodeList =
-                                    ranksElement.getElementsByTagName("rank")
-                                for (i in 0 until rankNodeList.length) {
-                                    if (rankNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
-                                        val rankElement: Element = rankNodeList.item(i) as Element
-
-                                        if (rankElement.getAttribute("type") == "subtype" &&
-                                            rankElement.getAttribute("name") == "boardgame"
-                                        ) {
-                                            try {
-                                                if (rankElement.getAttribute("value") != "Not Ranked") {
-                                                    boardGame.rank =
-                                                        rankElement.getAttribute("value").toInt()
-                                                }
-                                            } catch (e: Exception) {
-                                                Log.e(
-                                                    "loadBoardGame_RANK_EXCEPTION",
-                                                    "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
-                                                )
-                                            }
+                                if (rankElement.getAttribute("type") == "subtype" &&
+                                    rankElement.getAttribute("name") == "boardgame"
+                                ) {
+                                    try {
+                                        if (rankElement.getAttribute("value") != "Not Ranked") {
+                                            boardGame.rank =
+                                                rankElement.getAttribute("value").toInt()
                                         }
+                                        Log.i(
+                                            "loadBoardGame_RANK",
+                                            "bggid=$bggid; rank=${rankElement.getAttribute("value")}"
+                                        )
+                                    } catch (e: Exception) {
+                                        Log.e(
+                                            "loadBoardGame_RANK_EXCEPTION",
+                                            "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                                        )
                                     }
                                 }
+
                             }
                         }
                     }

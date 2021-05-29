@@ -26,7 +26,6 @@ class BGGActivity : AppCompatActivity() {
         list: List<BoardGame>,
         longLoadingWarningAmount: Int? = null
     ) {
-        //TODO: displaying search results in a list view
         mapPositionBGGID.clear()
         val searchResultsListView: ListView = findViewById(R.id.searchResultsList)
         val stringList = if (longLoadingWarningAmount != null) {
@@ -157,6 +156,9 @@ class BGGActivity : AppCompatActivity() {
         when (item.itemId) {
             android.R.id.home -> {
                 onBackPressed()
+            }
+            R.id.add_all -> {
+                //TODO!!!
             }
             else -> {
             }

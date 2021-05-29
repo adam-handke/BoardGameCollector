@@ -1,5 +1,6 @@
 package com.ubiquitous.boardgamecollector
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.AsyncTask
@@ -33,7 +34,7 @@ import java.util.*
         price_purchased - plain text
         rrp - plain text
         barcode - plain text
-            TODO: bggid - plain text (uneditable / hidden?)
+        bggid - plain text, number-type (if null, then 0)
         mpn - plain text
         rank - uneditable (hidden?)
         base_expansion_status - choice out of 3 (or hidden)
@@ -52,6 +53,7 @@ class EditActivity : AppCompatActivity() {
     private var add = false
 
     private fun initializeFields() {
+        Log.i("initializeFields", "id=${boardGame.id}; bggid=${boardGame.bggid}; rank=${boardGame.rank}")
         val minYear = 1600
         val maxYear = 3000
         val minDate = Calendar.getInstance()
@@ -141,6 +143,9 @@ class EditActivity : AppCompatActivity() {
 
         val editBarcode: TextInputEditText = findViewById(R.id.editBarcode)
         editBarcode.setText(boardGame.barcode)
+
+        val editBGGID: TextInputEditText = findViewById(R.id.editBGGID)
+        editBGGID.setText(boardGame.bggid.toString())
 
         val editMPN: TextInputEditText = findViewById(R.id.editMPN)
         editMPN.setText(boardGame.mpn)
@@ -238,7 +243,7 @@ class EditActivity : AppCompatActivity() {
             if (bggid > 0) {
                 APIAsyncTask().execute(bggid)
             }
-            BoardGame(bggid = bggid)
+            BoardGame()
         } else {
             add = false
             supportActionBar?.setTitle(R.string.edit_title)
@@ -250,6 +255,7 @@ class EditActivity : AppCompatActivity() {
         initializeFields()
     }
 
+    @SuppressLint("InflateParams")
     private fun addLocationRadioButton(locationID: Int, locationName: String) {
         val group: RadioGroup = findViewById(R.id.locationRadioGroup)
         val radioButtonView: View =
@@ -324,7 +330,7 @@ class EditActivity : AppCompatActivity() {
                 true
             }
             R.id.checkMark -> {
-                //TODO: on ADD BGG mode: insert artists, designers, rank
+                //TODO: on ADD BGG mode: insert artists, designers
 
                 //UPDATE DATABASE
                 val databaseHandler = DatabaseHandler.getInstance(this)
@@ -332,13 +338,13 @@ class EditActivity : AppCompatActivity() {
                 val editName: TextInputEditText = findViewById(R.id.editName)
                 boardGame.name = when (editName.text.toString().trim()) {
                     "" -> null
-                    else -> editName.text.toString()
+                    else -> editName.text.toString().trim()
                 }
 
                 val editOriginalName: TextInputEditText = findViewById(R.id.editOriginalName)
                 boardGame.originalName = when (editOriginalName.text.toString().trim()) {
                     "" -> null
-                    else -> editOriginalName.text.toString()
+                    else -> editOriginalName.text.toString().trim()
                 }
 
                 val yearPicker: NumberPicker = findViewById(R.id.yearPicker)
@@ -351,7 +357,7 @@ class EditActivity : AppCompatActivity() {
                 val editDescription: TextInputEditText = findViewById(R.id.editDescription)
                 boardGame.description = when (editDescription.text.toString().trim()) {
                     "" -> null
-                    else -> editDescription.text.toString()
+                    else -> editDescription.text.toString().trim()
                 }
 
                 val dateOrderedPicker: DatePicker = findViewById(R.id.dateOrderedPicker)
@@ -379,25 +385,31 @@ class EditActivity : AppCompatActivity() {
                 val editPricePurchased: TextInputEditText = findViewById(R.id.editPricePurchased)
                 boardGame.pricePurchased = when (editPricePurchased.text.toString().trim()) {
                     "" -> null
-                    else -> editPricePurchased.text.toString()
+                    else -> editPricePurchased.text.toString().trim()
                 }
 
                 val editRRP: TextInputEditText = findViewById(R.id.editRRP)
                 boardGame.rrp = when (editRRP.text.toString().trim()) {
                     "" -> null
-                    else -> editRRP.text.toString()
+                    else -> editRRP.text.toString().trim()
                 }
 
                 val editBarcode: TextInputEditText = findViewById(R.id.editBarcode)
                 boardGame.barcode = when (editBarcode.text.toString().trim()) {
                     "" -> null
-                    else -> editBarcode.text.toString()
+                    else -> editBarcode.text.toString().trim()
+                }
+
+                val editBGGID: TextInputEditText = findViewById(R.id.editBGGID)
+                boardGame.bggid = when (editBGGID.text.toString().trim()) {
+                    "" -> 0
+                    else -> editBGGID.text.toString().trim().toInt()
                 }
 
                 val editMPN: TextInputEditText = findViewById(R.id.editMPN)
                 boardGame.mpn = when (editMPN.text.toString().trim()) {
                     "" -> null
-                    else -> editMPN.text.toString()
+                    else -> editMPN.text.toString().trim()
                 }
 
                 val expansionRadioButton: RadioButton = findViewById(R.id.expansionRadioButton)
@@ -411,7 +423,7 @@ class EditActivity : AppCompatActivity() {
                 val editComment: TextInputEditText = findViewById(R.id.editComment)
                 boardGame.comment = when (editComment.text.toString().trim()) {
                     "" -> null
-                    else -> editComment.text.toString()
+                    else -> editComment.text.toString().trim()
                 }
 
                 val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
@@ -420,7 +432,7 @@ class EditActivity : AppCompatActivity() {
                 val editLocationComment: TextInputEditText = findViewById(R.id.editLocationComment)
                 boardGame.locationComment = when (editLocationComment.text.toString().trim()) {
                     "" -> null
-                    else -> editLocationComment.text.toString()
+                    else -> editLocationComment.text.toString().trim()
                 }
 
                 if (add) {

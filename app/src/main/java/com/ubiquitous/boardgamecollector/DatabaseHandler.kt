@@ -573,8 +573,7 @@ class DatabaseHandler(
         return boardGame
     }
 
-    //TODO: if value is null then put null (may by necessary to preserve nullness)
-    //TODO: artists, designers, expansions, ranks
+    //TODO: artists, designers, expansions
     fun insertBoardGame(boardGame: BoardGame, locationID: Int): Int {
         val db = this.writableDatabase
 
@@ -599,7 +598,7 @@ class DatabaseHandler(
         values.put(COLUMN_BARCODE, boardGame.barcode)
         values.put(COLUMN_BGGID, boardGame.bggid)
         values.put(COLUMN_MPN, boardGame.mpn)
-        values.put(COLUMN_RANK, boardGame.rank) //TODO: should be done separately, with rank history
+        //values.put(COLUMN_RANK, boardGame.rank) //done separately below, with rank history
         values.put(COLUMN_BASE_EXPANSION_STATUS, boardGame.baseExpansionStatus.name)
         values.put(COLUMN_COMMENT, boardGame.comment)
         val byteArrayOutputStream = ByteArrayOutputStream()
@@ -613,6 +612,12 @@ class DatabaseHandler(
             //new board game in existing location
             updateLocationOfBoardGame(id, locationID, boardGame.locationComment)
         }
+        Log.i("insertBoardGame", "rank=${boardGame.rank}")
+        if (boardGame.rank > 0){
+            //save rank in rank history
+            insertRankHistoryRecord(id, boardGame.rank)
+        }
+
         /*
         for (artist in boardGame.artistNames) {
             insertArtistOfBoardGame(id, 0, artist)
@@ -795,6 +800,7 @@ class DatabaseHandler(
         }
     }
 
+    //TODO: check if works correctly when API ranks are back up
     fun insertRankHistoryRecord(boardGameID: Int, rank: Int): Int {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -813,6 +819,8 @@ class DatabaseHandler(
             arrayOf(boardGameID.toString())
         )
         db.close()
+
+        Log.i("insertRankHistoryRecord", "boardGameID=$boardGameID; rank=$rank; rankRecordID=$id")
         return id
     }
 
@@ -838,9 +846,9 @@ class DatabaseHandler(
             values.put(COLUMN_PRICE_PURCHASED, boardGame.pricePurchased)
             values.put(COLUMN_RRP, boardGame.rrp)
             values.put(COLUMN_BARCODE, boardGame.barcode)
-            //values.put(COLUMN_BGGID, boardGame.bggid)
+            values.put(COLUMN_BGGID, boardGame.bggid)
             values.put(COLUMN_MPN, boardGame.mpn)
-            //values.put(COLUMN_RANK, boardGame.rank)
+            //values.put(COLUMN_RANK, boardGame.rank) //rank may only be updated by inserting a new rank history record
             values.put(COLUMN_BASE_EXPANSION_STATUS, boardGame.baseExpansionStatus.name)
             values.put(COLUMN_COMMENT, boardGame.comment)
             val byteArrayOutputStream = ByteArrayOutputStream()
@@ -856,6 +864,7 @@ class DatabaseHandler(
 
             db.close()
 
+            //update location
             updateLocationOfBoardGame(boardGame.id!!, locationID, boardGame.locationComment)
         }
     }
