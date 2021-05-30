@@ -131,12 +131,13 @@ class DetailsActivity : AppCompatActivity() {
                 other rows - copy to clipboard?
          */
         detailListView.setOnItemClickListener { _, _, position, _ ->
-            Log.i("setOnItemClickListener_Clipboard", "position=$position")
+            Log.i("setOnItemClickListener", "position=$position")
             if (position == 14) {
                 //go to rank history
                 val intent = Intent(this, RankHistoryActivity::class.java)
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 intent.putExtra("id", boardGameID)
+                intent.putExtra("bggid", boardGame.bggid)
                 intent.putExtra("name", boardGame.nameToString(getString(R.string.unnamed_board_game)))
                 Log.i("goToRankHistoryActivity", "id=$boardGameID")
                 startActivity(intent)

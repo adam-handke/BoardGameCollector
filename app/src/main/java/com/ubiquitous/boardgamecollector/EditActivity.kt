@@ -228,7 +228,7 @@ class EditActivity : AppCompatActivity() {
             } catch (e: Exception) {
                 Log.e(
                     "doInBackground_EXCEPTION",
-                    "search_phrase=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                    "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
                 )
                 BoardGame()
             }

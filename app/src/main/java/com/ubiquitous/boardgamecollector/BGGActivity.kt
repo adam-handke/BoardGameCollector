@@ -123,6 +123,7 @@ class BGGActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 )
                 toast.show()
+                //isRunning = false
             } else if (addAll) {
                 addAll = false
             }

@@ -1,42 +1,40 @@
 package com.ubiquitous.boardgamecollector
 
 import android.content.Intent
+import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.SimpleAdapter
+import android.widget.Toast
+import java.lang.Exception
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 //TODO: update ranking of this game only
 class RankHistoryActivity : AppCompatActivity() {
 
     private lateinit var rankHistoryListView: ListView
+    private var apiAsyncTask: RankHistoryActivity.APIAsyncTask = APIAsyncTask()
     private var id = 0
+    private var bggid = 0
     private var name = ""
+    private var list: List<Pair<Int, LocalDate>> = listOf()
     private val pattern = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    private val context = this
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_rank_history)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        //TODO: details - extras!
-        val extras = intent.extras ?: return
-        id = extras.getInt("id")
-        name = extras.getString("name").toString()
-
-        supportActionBar?.setTitle(R.string.rank_history_title)
-        supportActionBar?.subtitle = name
-
+    private fun displayRankHistory() {
         val databaseHandler = DatabaseHandler.getInstance(this)
-        val list = databaseHandler.getRankHistory(id)
+        list = databaseHandler.getRankHistory(id)
         databaseHandler.close()
 
         val rows = ArrayList<HashMap<String, String>>()
-        if(list.isNotEmpty()){
+        if (list.isNotEmpty()) {
             for (pair in list) {
                 val item = HashMap<String, String>()
                 item["date"] = pair.second.format(pattern)
@@ -61,7 +59,98 @@ class RankHistoryActivity : AppCompatActivity() {
 
         rankHistoryListView = findViewById(R.id.rankHistoryList)
         rankHistoryListView.adapter = adapter
+    }
 
+    //async task for loading rank (by game bggid)
+    inner class APIAsyncTask : AsyncTask<Int, Int, Boolean>() {
+        var isRunning = false
+
+        override fun doInBackground(vararg params: Int?): Boolean {
+            isRunning = true
+            val bggid = params[0]
+            if(bggid != null) {
+                return try {
+                    val boardGame = BoardGameGeek().loadBoardGame(bggid)
+                    val databaseHandler = DatabaseHandler.getInstance(context)
+                    databaseHandler.insertRankHistoryRecord(id, boardGame.rank)
+                    databaseHandler.close()
+                    true
+                } catch (e: Exception) {
+                    Log.e(
+                        "doInBackground_EXCEPTION",
+                        "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                    )
+                    false
+                }
+            } else {
+                return false
+            }
+        }
+
+        override fun onCancelled() {
+            super.onCancelled()
+            if (isRunning) {
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.rank_update_cancelled),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+                //isRunning = false
+            }
+        }
+
+        override fun onPostExecute(result: Boolean) {
+            super.onPostExecute(result)
+            isRunning = false
+            if(result){
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.rank_updated),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+                displayRankHistory()
+            } else {
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.rank_not_updated),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            }
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_rank_history)
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        val extras = intent.extras ?: return
+        id = extras.getInt("id")
+        bggid = extras.getInt("bggid")
+        name = extras.getString("name").toString()
+
+        supportActionBar?.setTitle(R.string.rank_history_title)
+        supportActionBar?.subtitle = name
+
+        displayRankHistory()
+    }
+
+    fun updateRank(view: View) {
+        apiAsyncTask.cancel(true)
+        apiAsyncTask = APIAsyncTask()
+        if(bggid <= 0){
+            val toast = Toast.makeText(
+                applicationContext,
+                getString(R.string.update_rank_wrong_bggid),
+                Toast.LENGTH_SHORT
+            )
+            toast.show()
+        } else {
+            apiAsyncTask.execute(bggid)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -81,6 +170,7 @@ class RankHistoryActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        apiAsyncTask.cancel(true)
         super.onBackPressed()
         val intent = Intent(this, DetailsActivity::class.java)
         intent.putExtra("id", id)

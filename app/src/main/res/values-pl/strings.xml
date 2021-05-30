@@ -64,4 +64,9 @@
     <string name="clipboard">Skopiowano do schowka</string>
     <string name="search_results">%1$d wyników wyszukiwania</string>
     <string name="in_collection">%1$d gier planszowych w kolekcji</string>
+    <string name="update_rank">Zaktualizuj pozycję w rankingu BGG</string>
+    <string name="rank_updated">Pozycja w rankingu BGG została zaktualizowana</string>
+    <string name="rank_not_updated">Pozycja w rankingu BGG nie została zaktualizowana</string>
+    <string name="rank_update_cancelled">Aktualizacja pozycji w rankingu BGG została anulowana</string>
+    <string name="update_rank_wrong_bggid">Gra planszowa ma niewłaściwy identyfikator BGG</string>
 </resources>

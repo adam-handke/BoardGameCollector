@@ -1,5 +1,5 @@
 # BoardGameCollector
-Simple Android app for collecting data about board games. Academic project for the *Ubiquitous computing* course.
+Android app for collecting data about board games. Academic project for the *Ubiquitous computing* course.
 * Written in Kotlin.
 * Developed in Android Studio.
 * Based on the *Empty activity* templates.
@@ -12,7 +12,7 @@ Simple Android app for collecting data about board games. Academic project for t
 * *DetailsActivity* - showing the details of a board game selected in the *MainActivity*. Options menu allows to: go to the *EditActivity*; delete the board game. Clicking on the BGG rank allows to go to the *RankHistoryActivity*.
 * *EditActivity* - editing editable details of an existing board game or adding a new board game manually or adding a new board game from Board Game Geek.
 * *BGGActivity* - searching board games at Board Game Geek by game name or by username (all games in user's collection). Options menu: adding all search results to collection.
-* *RankHistoryActivity* - displaying the rank history of a board game.
+* *RankHistoryActivity* - displaying the rank history of a board game. A button allows to update the rank.
 
 ___
 Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
