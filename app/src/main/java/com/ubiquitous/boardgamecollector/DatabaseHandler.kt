@@ -496,28 +496,20 @@ class DatabaseHandler(
         return map
     }
 
-    fun getRankHistory(boardGameID: Int): Map<Int, LocalDate> {
-        val map = mutableMapOf<Int, LocalDate>()
+    fun getRankHistory(boardGameID: Int): List<Pair<Int, LocalDate>> {
+        val list = mutableListOf<Pair<Int, LocalDate>>()
         if (boardGameID > 0) {
             val db = this.writableDatabase
-            val cursor = db.query(
-                false,
-                TABLE_RANK_HISTORY,
-                arrayOf(COLUMN_RANK, COLUMN_DATE_RETRIEVED),
-                "$COLUMN_BOARDGAME_ID = ?",
-                arrayOf(boardGameID.toString()),
-                null,
-                null,
-                COLUMN_DATE_RETRIEVED,
-                null
-            )
+            val query = "SELECT $COLUMN_RANK, $COLUMN_DATE_RETRIEVED FROM $TABLE_RANK_HISTORY " +
+                    "WHERE $COLUMN_BOARDGAME_ID = $boardGameID ORDER BY $COLUMN_DATE_RETRIEVED DESC;"
+            val cursor = db.rawQuery(query, null)
             try {
                 while (cursor.moveToNext()) {
                     val tmpRank = cursor.getInt(0)
                     val tmpDate =
                         Instant.ofEpochMilli(cursor.getLong(1)).atZone(ZoneId.systemDefault())
                             .toLocalDate()
-                    map[tmpRank] = tmpDate
+                    list.add(Pair(tmpRank, tmpDate))
                 }
             } catch (e: Exception) {
                 Log.e("getRankHistory_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
@@ -526,7 +518,7 @@ class DatabaseHandler(
             }
             db.close()
         }
-        return map
+        return list
     }
 
     fun getBoardGameDetails(boardGameID: Int): BoardGame {

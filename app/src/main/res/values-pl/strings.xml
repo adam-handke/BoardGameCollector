@@ -59,4 +59,9 @@
     <string name="added_X_games">Dodano %1$d gier planszowych z wyników wyszukiwania</string>
     <string name="reset_done">Kolekcja gier planszowych została zresetowana</string>
     <string name="search_add_all_cancelled">Dodawanie wszystkich %1$d wyników wyszukiwania zostało przerwane</string>
+    <string name="rank_history_title">Historia rankingu</string>
+    <string name="rank_history_empty">Ta gra planszowa nie ma historii rankingu</string>
+    <string name="clipboard">Skopiowano do schowka</string>
+    <string name="search_results">%1$d wyników wyszukiwania</string>
+    <string name="in_collection">%1$d gier planszowych w kolekcji</string>
 </resources>

@@ -12,6 +12,11 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.BoardGameCollector">
         <activity
+            android:name=".RankHistoryActivity"
+            android:noHistory="true"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity
             android:name=".BGGActivity"
             android:noHistory="true"
             android:screenOrientation="portrait">

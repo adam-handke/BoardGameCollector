@@ -30,7 +30,7 @@ class BoardGame(
     var locationComment: String? = null,
     var alternateNames: List<String> = listOf() //list of alternate names when adding from BGG
 ) {
-    private var pattern = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+    private val pattern = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
     //simplest constructor
     constructor(name: String) : this() {

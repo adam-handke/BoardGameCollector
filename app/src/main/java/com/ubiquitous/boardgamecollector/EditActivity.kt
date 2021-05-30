@@ -53,6 +53,8 @@ class EditActivity : AppCompatActivity() {
 
     @SuppressLint("ClickableViewAccessibility")
     private fun initializeFields() {
+        supportActionBar?.subtitle = boardGame.nameToString(getString(R.string.unnamed_board_game))
+
         Log.i("initializeFields", "id=${boardGame.id}; bggid=${boardGame.bggid}; rank=${boardGame.rank}")
         val minYear = 0
         val maxYear = 3000

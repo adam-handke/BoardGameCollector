@@ -1,5 +1,7 @@
 package com.ubiquitous.boardgamecollector
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
@@ -12,7 +14,6 @@ import android.widget.SimpleAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import kotlin.math.roundToInt
 
 class DetailsActivity : AppCompatActivity() {
 
@@ -60,6 +61,9 @@ class DetailsActivity : AppCompatActivity() {
 
         val databaseHandler = DatabaseHandler.getInstance(this)
         val boardGame = databaseHandler.getBoardGameDetails(boardGameID)
+        databaseHandler.close()
+
+        supportActionBar?.subtitle = boardGame.nameToString(getString(R.string.unnamed_board_game))
 
         //TODO: expansion names
         val detailNames = arrayOf(
@@ -119,7 +123,42 @@ class DetailsActivity : AppCompatActivity() {
         }
         detailListView.addHeaderView(imageView)
 
-        databaseHandler.close()
+        /*TODO: on click actions specific for every row:
+            designers - go to designers activity???
+            artists - go to artists activity???
+            BGGID - open URL with that ID through a web browser
+            location - locations activity
+                other rows - copy to clipboard?
+         */
+        detailListView.setOnItemClickListener { _, _, position, _ ->
+            Log.i("setOnItemClickListener_Clipboard", "position=$position")
+            if (position == 14) {
+                //go to rank history
+                val intent = Intent(this, RankHistoryActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                intent.putExtra("id", boardGameID)
+                intent.putExtra("name", boardGame.nameToString(getString(R.string.unnamed_board_game)))
+                Log.i("goToRankHistoryActivity", "id=$boardGameID")
+                startActivity(intent)
+            }/*else if (position != 0) {
+                //copy to clipboard
+                Log.i("setOnItemClickListener_Clipboard", "position=$position")
+                val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+
+                @Suppress("UNCHECKED_CAST")
+                val element = adapter.getItem(position) as HashMap<String, String>
+                val clip = ClipData.newPlainText(element["name"], element["value"])
+                clipboard.setPrimaryClip(clip)
+
+                val toast = Toast.makeText(
+                    applicationContext,
+                    getString(R.string.clipboard),
+                    Toast.LENGTH_SHORT
+                )
+                toast.show()
+            }
+            */
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -130,12 +169,6 @@ class DetailsActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
-                /*
-                val intent = Intent(this, MainActivity::class.java)
-                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                Log.i("goToMainActivity", "id=$id")
-                startActivity(intent)
-                 */
                 onBackPressed()
             }
             R.id.edit -> {
@@ -168,23 +201,4 @@ class DetailsActivity : AppCompatActivity() {
         Log.i("onBackPressed", "id=$boardGameID")
         startActivity(intent)
     }
-
-    /*TODO: on click actions specific for every row:
-        name - copy to clipboard
-        original name - copy to clipboard
-        year - copy to clipboard
-        designers - copy to clipboard (or go to designers activity???)
-        artists - copy to clipboard (or go to artists activity???)
-        description - copy to clipboard
-        dates - copy to clipboard
-        prices - copy to clipboard
-        barcode - copy to clipboard
-        BGGID - open URL with that ID through a web browser
-        MPN - copy to clipboard
-        rank - rank history activity
-        baseExpansion status - copy to clipboard
-        comment - copy to clipboard
-        location - locations activity
-        location comment - copy to clipboard
-     */
 }

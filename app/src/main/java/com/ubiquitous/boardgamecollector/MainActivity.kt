@@ -99,6 +99,8 @@ class MainActivity : AppCompatActivity() {
             val count: Int = databaseHandler.countBoardGames()
             databaseHandler.close()
 
+            supportActionBar?.subtitle = getString(R.string.in_collection, count)
+
             if(count > 100){    //only show load-warning toast when more than X games in database
                 val toast = Toast.makeText(
                     applicationContext,

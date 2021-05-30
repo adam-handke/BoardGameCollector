@@ -35,6 +35,7 @@ class BGGActivity : AppCompatActivity() {
             //display warning that *longLoadingWarningAmount* results are being loaded
             listOf(getString(R.string.search_long_loading_warning, longLoadingWarningAmount))
         } else {
+            supportActionBar?.subtitle = getString(R.string.search_results, list.size)
             if (list.isNotEmpty()) {
                 for (i in list.indices) {
                     mapPositionBGGID[i] = list[i].bggid
@@ -122,6 +123,8 @@ class BGGActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 )
                 toast.show()
+            } else if (addAll) {
+                addAll = false
             }
         }
 
@@ -207,7 +210,7 @@ class BGGActivity : AppCompatActivity() {
                     val toast = Toast.makeText(
                         applicationContext,
                         getString(R.string.search_add_all_wait, mapPositionBGGID.keys.size),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_LONG
                     )
                     toast.show()
 
@@ -233,7 +236,7 @@ class BGGActivity : AppCompatActivity() {
     override fun onBackPressed() {
         apiAsyncTask.cancel(true)
         if (addAll) {
-            addAll = false
+            //addAll = false
             val toast = Toast.makeText(
                 applicationContext,
                 getString(R.string.search_add_all_cancelled, mapPositionBGGID.keys.size),

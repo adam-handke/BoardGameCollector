@@ -59,4 +59,9 @@
     <string name="added_X_games">Added %1$d board games from search results</string>
     <string name="reset_done">Board game collection was reset</string>
     <string name="search_add_all_cancelled">Adding all %1$d search results was interrupted</string>
+    <string name="rank_history_title">Rank history</string>
+    <string name="rank_history_empty">This board game has no rank history</string>
+    <string name="clipboard">Copied to clipboard</string>
+    <string name="search_results">%1$d search results</string>
+    <string name="in_collection">%1$d board games in the collection</string>
 </resources>
