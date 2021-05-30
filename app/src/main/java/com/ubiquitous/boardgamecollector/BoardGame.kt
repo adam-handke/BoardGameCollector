@@ -27,7 +27,8 @@ class BoardGame(
     var comment: String? = null,
     var thumbnail: Bitmap? = null,
     var locationName: String? = null,
-    var locationComment: String? = null
+    var locationComment: String? = null,
+    var alternateNames: List<String> = listOf() //list of alternate names when adding from BGG
 ) {
     private var pattern = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 

@@ -60,6 +60,7 @@ class BGGActivity : AppCompatActivity() {
         override fun doInBackground(vararg params: Boolean?): Pair<Boolean, List<BoardGame>> {
             isRunning = true
             if (!addAll) {
+                //async searching
                 val asyncSearchName = params[0] ?: true //search by: true=game name; false=username
                 val searchPhraseView: TextInputEditText = findViewById(R.id.searchPhrase)
                 val searchPhrase: String = searchPhraseView.text.toString().trim()
@@ -82,17 +83,18 @@ class BGGActivity : AppCompatActivity() {
                     Pair(asyncSearchName, listOf())
                 }
             } else {
+                //async adding all search results
                 val databaseHandler = DatabaseHandler.getInstance(context)
                 for (bggid in mapPositionBGGID.values) {
-                    try {
-                        //TODO: fix API java.io.FileNotFoundException when trying to load too many games at once
-                        // maybe some random waiting will help?
-                        databaseHandler.insertBoardGame(BoardGameGeek().loadBoardGame(bggid), 0)
-                    } catch (e: Exception) {
-                        Log.e(
-                            "APIAsyncTask_ADD_ALL",
-                            "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
-                        )
+                    if (!isCancelled) {
+                        try {
+                            databaseHandler.insertBoardGame(BoardGameGeek().loadBoardGame(bggid), 0)
+                        } catch (e: Exception) {
+                            Log.e(
+                                "APIAsyncTask_ADD_ALL",
+                                "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                            )
+                        }
                     }
                 }
                 databaseHandler.close()
@@ -113,7 +115,7 @@ class BGGActivity : AppCompatActivity() {
 
         override fun onCancelled() {
             super.onCancelled()
-            if (isRunning) {
+            if (isRunning && !addAll) {
                 val toast = Toast.makeText(
                     applicationContext,
                     getString(R.string.search_cancelled),
@@ -229,6 +231,7 @@ class BGGActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
+        apiAsyncTask.cancel(true)
         if (addAll) {
             addAll = false
             val toast = Toast.makeText(
@@ -239,7 +242,6 @@ class BGGActivity : AppCompatActivity() {
             toast.show()
         }
         super.onBackPressed()
-        apiAsyncTask.cancel(true)
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         Log.i("onBackPressed", searchPhrase.toString())

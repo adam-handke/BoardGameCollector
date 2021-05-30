@@ -7,16 +7,14 @@ import org.w3c.dom.Document
 import org.w3c.dom.Element
 import org.w3c.dom.Node
 import org.w3c.dom.NodeList
+import java.io.FileNotFoundException
 import java.io.InputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
-//TODO: input validation? maybe the API can handle it itself?
 //TODO: loading up-to-date rank for a board game (all board games?)
-//TODO: parse HTML text to normal text (without weird strings like &#39;)
-//TODO: maybe load full-size image instead of small thumbnail?
 class BoardGameGeek(
     val baseURL: String = "https://www.boardgamegeek.com/xmlapi2",
     val longLoadingWarningLimit: Int = 20
@@ -161,137 +159,155 @@ class BoardGameGeek(
         val boardGame = BoardGame(bggid = bggid)
         Log.i("loadBoardGame", "bggid=$bggid")
         if (bggid > 0) {
-            try {
-                val url = URL("$baseURL/thing?id=$bggid&stats=1")
-                val builderFactory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
-                val docBuilder: DocumentBuilder = builderFactory.newDocumentBuilder()
-                val doc: Document = docBuilder.parse(url.openStream())
-                val nodeList: NodeList = doc.getElementsByTagName("item")
+            var i = 0
+            while(i in 0..5) { //try up to 6 times to load from API
+                try {
+                    val url = URL("$baseURL/thing?id=$bggid&stats=1")
+                    val builderFactory: DocumentBuilderFactory =
+                        DocumentBuilderFactory.newInstance()
+                    val docBuilder: DocumentBuilder = builderFactory.newDocumentBuilder()
+                    val doc: Document = docBuilder.parse(url.openStream())
+                    val nodeList: NodeList = doc.getElementsByTagName("item")
 
-                //get 0-th item - the board game
-                if (nodeList.length > 0) {
-                    val element: Element = nodeList.item(0) as Element
-                    if (element.getAttribute("id") == bggid.toString()) {
+                    //get 0-th item - the board game
+                    if (nodeList.length > 0) {
+                        val element: Element = nodeList.item(0) as Element
+                        if (element.getAttribute("id") == bggid.toString()) {
 
-                        //assign status as expansion if is expansion
-                        if (element.getAttribute("type") == "boardgameexpansion") {
-                            boardGame.baseExpansionStatus = BaseExpansionStatus.EXPANSION
-                        }
-
-                        //assign name
-                        val nameNodeList = element.getElementsByTagName("name")
-                        if (nameNodeList.length > 0) {
-                            val nameElement: Element = nameNodeList.item(0) as Element
-                            if (nameElement.getAttribute("type") == "primary") {
-                                boardGame.originalName = nameElement.getAttribute("value")
+                            //assign status as expansion if is expansion
+                            if (element.getAttribute("type") == "boardgameexpansion") {
+                                boardGame.baseExpansionStatus = BaseExpansionStatus.EXPANSION
                             }
-                            //TODO: boardGame.name
-                            // maybe the user should choose out of all names (alternate and primary)?
-                            // pop-up window with name choice? autofill choices?
-                            // no language indication in the API :(
 
-                        }
-
-                        //assign year published
-                        val yearNodeList = element.getElementsByTagName("yearpublished")
-                        if (yearNodeList.length > 0) {
-                            val yearElement: Element = yearNodeList.item(0) as Element
-                            boardGame.yearPublished = yearElement.getAttribute("value").toInt()
-                        }
-
-                        //assign description
-                        boardGame.description =
-                            Html.fromHtml(getNodeValue("description", element)).toString()
-
-                        //assign thumbnail
-                        //val thumbnailURL = getNodeValue("image", element) //load big image
-                        val thumbnailURL = getNodeValue("thumbnail", element) //load small image
-                        if (thumbnailURL != null) {
-                            val connection: HttpURLConnection =
-                                URL(thumbnailURL).openConnection() as HttpURLConnection
-                            connection.doInput = true
-                            connection.connect()
-                            val input: InputStream = connection.inputStream
-                            boardGame.thumbnail = BitmapFactory.decodeStream(input)
-                        }
-
-                        //assign artists, designers and expansions (+Base/Expansion status)
-                        val artists = mutableMapOf<Int, String?>()
-                        val designers = mutableMapOf<Int, String?>()
-                        val expansions = mutableMapOf<Int, String?>()
-                        val linkNodeList: NodeList = element.getElementsByTagName("link") //doc?
-                        for (i in 0 until linkNodeList.length) {
-                            if (linkNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
-                                val linkElement: Element = linkNodeList.item(i) as Element
-                                when (linkElement.getAttribute("type")) {
-                                    "boardgameartist" -> {
-                                        artists[linkElement.getAttribute("id").toInt()] =
-                                            linkElement.getAttribute("value")
+                            //assign name
+                            val nameNodeList = element.getElementsByTagName("name")
+                            val alternateNames = mutableListOf<String>()
+                            for (i in 0 until nameNodeList.length) {
+                                if (nameNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
+                                    val nameElement: Element = nameNodeList.item(i) as Element
+                                    if (nameElement.getAttribute("type") == "primary") {
+                                        boardGame.originalName = nameElement.getAttribute("value")
+                                    } else {
+                                        alternateNames.add(nameElement.getAttribute("value"))
                                     }
-                                    "boardgamedesigner" -> {
-                                        designers[linkElement.getAttribute("id").toInt()] =
-                                            linkElement.getAttribute("value")
-                                    }
-                                    "boardgameexpansion" -> {
-                                        if (linkElement.getAttribute("inbound") == "true") {
-                                            if (expansions.isEmpty()) {
-                                                boardGame.baseExpansionStatus =
-                                                    BaseExpansionStatus.EXPANSION
-                                            } else {
-                                                boardGame.baseExpansionStatus =
-                                                    BaseExpansionStatus.BOTH
-                                            }
-                                        } else {
-                                            expansions[linkElement.getAttribute("id").toInt()] =
+                                }
+                            }
+                            boardGame.alternateNames = alternateNames
+
+                            //assign year published
+                            val yearNodeList = element.getElementsByTagName("yearpublished")
+                            if (yearNodeList.length > 0) {
+                                val yearElement: Element = yearNodeList.item(0) as Element
+                                boardGame.yearPublished = yearElement.getAttribute("value").toInt()
+
+                                //treat year=0 as null
+                                if(boardGame.yearPublished == 0){
+                                    boardGame.yearPublished = null
+                                }
+                            }
+
+                            //assign description
+                            boardGame.description =
+                                Html.fromHtml(getNodeValue("description", element)).toString()
+
+                            //assign thumbnail
+                            //val thumbnailURL = getNodeValue("image", element) //load big image
+                            val thumbnailURL = getNodeValue("thumbnail", element) //load small image
+                            if (thumbnailURL != null) {
+                                val connection: HttpURLConnection =
+                                    URL(thumbnailURL).openConnection() as HttpURLConnection
+                                connection.doInput = true
+                                connection.connect()
+                                val input: InputStream = connection.inputStream
+                                boardGame.thumbnail = BitmapFactory.decodeStream(input)
+                            }
+
+                            //assign artists, designers and expansions (+Base/Expansion status)
+                            val artists = mutableMapOf<Int, String?>()
+                            val designers = mutableMapOf<Int, String?>()
+                            val expansions = mutableMapOf<Int, String?>()
+                            val linkNodeList: NodeList = element.getElementsByTagName("link") //doc?
+                            for (i in 0 until linkNodeList.length) {
+                                if (linkNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
+                                    val linkElement: Element = linkNodeList.item(i) as Element
+                                    when (linkElement.getAttribute("type")) {
+                                        "boardgameartist" -> {
+                                            artists[linkElement.getAttribute("id").toInt()] =
                                                 linkElement.getAttribute("value")
-                                            if (boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION) {
-                                                boardGame.baseExpansionStatus =
-                                                    BaseExpansionStatus.BOTH
+                                        }
+                                        "boardgamedesigner" -> {
+                                            designers[linkElement.getAttribute("id").toInt()] =
+                                                linkElement.getAttribute("value")
+                                        }
+                                        "boardgameexpansion" -> {
+                                            if (linkElement.getAttribute("inbound") == "true") {
+                                                if (expansions.isEmpty()) {
+                                                    boardGame.baseExpansionStatus =
+                                                        BaseExpansionStatus.EXPANSION
+                                                } else {
+                                                    boardGame.baseExpansionStatus =
+                                                        BaseExpansionStatus.BOTH
+                                                }
+                                            } else {
+                                                expansions[linkElement.getAttribute("id").toInt()] =
+                                                    linkElement.getAttribute("value")
+                                                if (boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION) {
+                                                    boardGame.baseExpansionStatus =
+                                                        BaseExpansionStatus.BOTH
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                        boardGame.artists = artists
-                        boardGame.designers = designers
-                        boardGame.expansions = expansions
+                            boardGame.artists = artists
+                            boardGame.designers = designers
+                            boardGame.expansions = expansions
 
-                        //assign rank
-                        val rankNodeList: NodeList = element.getElementsByTagName("rank")
-                        for (i in 0 until rankNodeList.length) {
-                            if (rankNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
-                                val rankElement: Element = rankNodeList.item(i) as Element
+                            //assign rank
+                            val rankNodeList: NodeList = element.getElementsByTagName("rank")
+                            for (i in 0 until rankNodeList.length) {
+                                if (rankNodeList.item(0).nodeType === Node.ELEMENT_NODE) {
+                                    val rankElement: Element = rankNodeList.item(i) as Element
 
-                                if (rankElement.getAttribute("type") == "subtype" &&
-                                    rankElement.getAttribute("name") == "boardgame"
-                                ) {
-                                    try {
-                                        if (rankElement.getAttribute("value") != "Not Ranked") {
-                                            boardGame.rank =
-                                                rankElement.getAttribute("value").toInt()
+                                    if (rankElement.getAttribute("type") == "subtype" &&
+                                        rankElement.getAttribute("name") == "boardgame"
+                                    ) {
+                                        try {
+                                            if (rankElement.getAttribute("value") != "Not Ranked") {
+                                                boardGame.rank =
+                                                    rankElement.getAttribute("value").toInt()
+                                            }
+                                            Log.i(
+                                                "loadBoardGame_RANK",
+                                                "bggid=$bggid; rank=${rankElement.getAttribute("value")}"
+                                            )
+                                        } catch (e: Exception) {
+                                            Log.e(
+                                                "loadBoardGame_RANK_EXCEPTION",
+                                                "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                                            )
                                         }
-                                        Log.i(
-                                            "loadBoardGame_RANK",
-                                            "bggid=$bggid; rank=${rankElement.getAttribute("value")}"
-                                        )
-                                    } catch (e: Exception) {
-                                        Log.e(
-                                            "loadBoardGame_RANK_EXCEPTION",
-                                            "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
-                                        )
                                     }
-                                }
 
+                                }
                             }
                         }
                     }
+                    Log.i("loadBoardGame_SUCCESS", "bggid=$bggid")
+                    i = -1
+                } catch (e: FileNotFoundException) {
+                    //wait 3s and try again (up to 6 times)
+                    Log.e(
+                        "loadBoardGame_FileNotFoundException",
+                        "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
+                    )
+                    i++
+                    Thread.sleep(1000)
                 }
-            } catch (e: Exception) {
-                Log.e(
-                    "loadBoardGame_EXCEPTION",
-                    "bggid=$bggid; ${e.message}; ${e.stackTraceToString()}"
-                )
+            }
+            if (i > 5){
+                Log.i("loadBoardGame_FAILURE", "bggid=$bggid")
             }
         }
         return boardGame

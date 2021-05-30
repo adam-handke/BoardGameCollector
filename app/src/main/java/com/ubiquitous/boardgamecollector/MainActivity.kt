@@ -52,11 +52,14 @@ class MainActivity : AppCompatActivity() {
         }
         val tableLayout: TableLayout = findViewById(R.id.tableLayout)
         tableLayout.removeAllViews()
+        Log.i("displayBoardGame", "displaying ${list.size} board games")
         for (boardGame in list) {
+            /*
             Log.i(
                 "displayBoardGame",
                 "id=${boardGame.id}; name=${boardGame.nameToString(getString(R.string.unnamed_board_game))}"
             )
+            */
             if (!(boardGame.baseExpansionStatus == BaseExpansionStatus.EXPANSION && hideExpansions)) {
                 val tableRow: View =
                     LayoutInflater.from(this).inflate(R.layout.table_item, null, false)
@@ -190,9 +193,10 @@ class MainActivity : AppCompatActivity() {
                 Log.i("onOptionsItemSelected", "hideExpansions=" + item.isChecked.toString())
                 item.isChecked = !item.isChecked
                 hideExpansions = item.isChecked
-                loadAsyncTask.cancel(true)
-                loadAsyncTask = LoadAsyncTask()
-                loadAsyncTask.execute()
+                //loadAsyncTask.cancel(true)
+                //loadAsyncTask = LoadAsyncTask()
+                //loadAsyncTask.execute()
+                displayBoardGames()
             }
             R.id.add -> {
                 loadAsyncTask.cancel(true)
@@ -227,21 +231,24 @@ class MainActivity : AppCompatActivity() {
             }
             R.id.sort_by_name -> {
                 sortBy = item.itemId
-                loadAsyncTask.cancel(true)
-                loadAsyncTask = LoadAsyncTask()
-                loadAsyncTask.execute()
+                //loadAsyncTask.cancel(true)
+                //loadAsyncTask = LoadAsyncTask()
+                //loadAsyncTask.execute()
+                displayBoardGames()
             }
             R.id.sort_by_rank -> {
                 sortBy = item.itemId
-                loadAsyncTask.cancel(true)
-                loadAsyncTask = LoadAsyncTask()
-                loadAsyncTask.execute()
+                //loadAsyncTask.cancel(true)
+                //loadAsyncTask = LoadAsyncTask()
+                //loadAsyncTask.execute()
+                displayBoardGames()
             }
             R.id.sort_by_year -> {
                 sortBy = item.itemId
-                loadAsyncTask.cancel(true)
-                loadAsyncTask = LoadAsyncTask()
-                loadAsyncTask.execute()
+                //loadAsyncTask.cancel(true)
+                //loadAsyncTask = LoadAsyncTask()
+                //loadAsyncTask.execute()
+                displayBoardGames()
             }
             else -> {
                 super.onOptionsItemSelected(item)

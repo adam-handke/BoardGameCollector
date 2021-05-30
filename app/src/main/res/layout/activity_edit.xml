@@ -19,13 +19,18 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/name"
-            app:boxBackgroundColor="@color/secondary">
+            app:boxBackgroundColor="@color/secondary"
+            app:layout_constraintBottom_toTopOf="@id/editName">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <AutoCompleteTextView
                 android:id="@+id/editName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textMultiLine" />
+                android:background="@null"
+                android:inputType="textMultiLine"
+                android:padding="16dp"
+                style="@style/Theme.BoardGameCollector"
+                tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -39,6 +44,7 @@
                 android:id="@+id/editOriginalName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -94,6 +100,7 @@
                 android:id="@+id/editDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -194,6 +201,7 @@
                 android:id="@+id/editPricePurchased"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -208,6 +216,7 @@
                 android:id="@+id/editRRP"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -222,6 +231,7 @@
                 android:id="@+id/editBarcode"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -236,6 +246,7 @@
                 android:id="@+id/editBGGID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="number"
                 android:digits="0123456789"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -251,6 +262,7 @@
                 android:id="@+id/editMPN"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -312,6 +324,7 @@
                 android:id="@+id/editComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -358,6 +371,7 @@
                 android:id="@+id/editLocationComment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                style="@style/Theme.BoardGameCollector"
                 android:inputType="textMultiLine" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>

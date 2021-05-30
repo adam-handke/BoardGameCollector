@@ -220,8 +220,8 @@ class DatabaseHandler(
                 COLUMN_NAME,
                 COLUMN_ORIGINAL_NAME,
                 COLUMN_YEAR_PUBLISHED,
-                COLUMN_DESCRIPTION,
-                COLUMN_DATE_ADDED,
+                //COLUMN_DESCRIPTION,
+                //COLUMN_DATE_ADDED,
                 COLUMN_BGGID,
                 COLUMN_RANK,
                 COLUMN_BASE_EXPANSION_STATUS,
@@ -241,15 +241,17 @@ class DatabaseHandler(
                 boardGame.name = cursor.getStringOrNull(1)
                 boardGame.originalName = cursor.getStringOrNull(2)
                 boardGame.yearPublished = cursor.getIntOrNull(3)
+                /*
                 boardGame.description = cursor.getStringOrNull(4)
                 boardGame.dateAdded =
                     cursor.getLongOrNull(5)?.let {
                         Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())
                             .toLocalDate()
                     }
-                boardGame.bggid = cursor.getInt(6)
-                boardGame.rank = cursor.getInt(7)
-                when (cursor.getString(8)) {
+                 */
+                boardGame.bggid = cursor.getInt(4)
+                boardGame.rank = cursor.getInt(5)
+                when (cursor.getString(6)) {
                     BaseExpansionStatus.EXPANSION.name -> boardGame.baseExpansionStatus =
                         BaseExpansionStatus.EXPANSION
                     BaseExpansionStatus.BOTH.name -> boardGame.baseExpansionStatus =
@@ -258,7 +260,7 @@ class DatabaseHandler(
                         boardGame.baseExpansionStatus = BaseExpansionStatus.BASE
                     }
                 }
-                val tmpThumbnail = cursor.getBlobOrNull(9)
+                val tmpThumbnail = cursor.getBlobOrNull(7)
                 if (tmpThumbnail != null) {
                     boardGame.thumbnail =
                         BitmapFactory.decodeByteArray(tmpThumbnail, 0, tmpThumbnail.size)

@@ -2,7 +2,6 @@ package com.ubiquitous.boardgamecollector
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.Bitmap
 import android.os.AsyncTask
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -23,25 +22,25 @@ import java.util.*
 
 /*Layout:
     ScrollView
-        name - plain text
-        original_name - plain text
+        name - AutoCompleteTextView (auto-complete with OriginalName or alternate names from BGG)
+        original_name - TextInputEditText
         year_published - spinner + null switch
             TODO: designers - generated radio buttons? (or hidden / uneditable???)
             TODO: artists - generated radio buttons? (or hidden / uneditable???)
-        description - plain text
+        description - TextInputEditText
         date_ordered - date picker spinner + null switch
         date_added  - date picker spinner + null switch
-        price_purchased - plain text
-        rrp - plain text
-        barcode - plain text
-        bggid - plain text, number-type (if null, then 0)
-        mpn - plain text
-        rank - uneditable (hidden?)
+        price_purchased - TextInputEditText
+        rrp - TextInputEditText
+        barcode - TextInputEditText
+        bggid - TextInputEditText, number-type (if null, then 0)
+        mpn - TextInputEditText
+        rank - uneditable (hidden)
         base_expansion_status - choice out of 3 (or hidden)
             TODO: expansions (maybe only by loading from BGG?)
-        comment - plain text
+        comment - TextInputEditText
         location - choice out of existing locations (if empty, then go to adding location)
-        location_comment - plain text
+        location_comment - TextInputEditText
             TODO: thumbnail - add from phone memory?
     )
 */
@@ -52,9 +51,10 @@ class EditActivity : AppCompatActivity() {
     private var boardGame = BoardGame()
     private var add = false
 
+    @SuppressLint("ClickableViewAccessibility")
     private fun initializeFields() {
         Log.i("initializeFields", "id=${boardGame.id}; bggid=${boardGame.bggid}; rank=${boardGame.rank}")
-        val minYear = 1600
+        val minYear = 0
         val maxYear = 3000
         val minDate = Calendar.getInstance()
         minDate.set(minYear, 0, 1)
@@ -63,8 +63,25 @@ class EditActivity : AppCompatActivity() {
         val databaseHandler = DatabaseHandler.getInstance(this)
 
         //initial filling with values
-        val editName: TextInputEditText = findViewById(R.id.editName)
+        val editName: AutoCompleteTextView = findViewById(R.id.editName)
         editName.setText(boardGame.name)
+        //set autocomplete for main name
+        val alternateNames: List<String> = if(boardGame.originalName != null){
+            //original name as first alternate name
+            listOf(boardGame.originalName!!) + boardGame.alternateNames
+        } else {
+            boardGame.alternateNames
+        }
+        if(alternateNames.isNotEmpty()){
+            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, alternateNames)
+            editName.setAdapter(adapter)
+            editName.threshold = 0
+
+            editName.setOnTouchListener { _, _ ->
+                editName.showDropDown()
+                false
+            }
+        }
 
         val editOriginalName: TextInputEditText = findViewById(R.id.editOriginalName)
         editOriginalName.setText(boardGame.originalName)
@@ -335,7 +352,7 @@ class EditActivity : AppCompatActivity() {
                 //UPDATE DATABASE
                 val databaseHandler = DatabaseHandler.getInstance(this)
 
-                val editName: TextInputEditText = findViewById(R.id.editName)
+                val editName: AutoCompleteTextView = findViewById(R.id.editName)
                 boardGame.name = when (editName.text.toString().trim()) {
                     "" -> null
                     else -> editName.text.toString().trim()
