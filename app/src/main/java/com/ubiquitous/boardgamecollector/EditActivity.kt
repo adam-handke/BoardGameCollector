@@ -54,7 +54,10 @@ class EditActivity : AppCompatActivity() {
     private fun initializeFields() {
         supportActionBar?.subtitle = boardGame.nameToString(getString(R.string.unnamed_board_game))
 
-        Log.i("initializeFields", "id=${boardGame.id}; bggid=${boardGame.bggid}; rank=${boardGame.rank}")
+        Log.i(
+            "initializeFields",
+            "id=${boardGame.id}; bggid=${boardGame.bggid}; rank=${boardGame.rank}"
+        )
         val minYear = 0
         val maxYear = 3000
         val minDate = Calendar.getInstance()
@@ -67,14 +70,15 @@ class EditActivity : AppCompatActivity() {
         val editName: AutoCompleteTextView = findViewById(R.id.editName)
         editName.setText(boardGame.name)
         //set autocomplete for main name
-        val alternateNames: List<String> = if(boardGame.originalName != null){
+        val alternateNames: List<String> = if (boardGame.originalName != null) {
             //original name as first alternate name
             listOf(boardGame.originalName!!) + boardGame.alternateNames
         } else {
             boardGame.alternateNames
         }
-        if(alternateNames.isNotEmpty()){
-            val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, alternateNames)
+        if (alternateNames.isNotEmpty()) {
+            val adapter =
+                ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, alternateNames)
             editName.setAdapter(adapter)
             editName.threshold = 0
 
@@ -266,21 +270,22 @@ class EditActivity : AppCompatActivity() {
 
         // setting up edit/add/addBGG activity
         val databaseHandler = DatabaseHandler.getInstance(this)
-        boardGame = if (id == 0) {
+        if (id == 0) {
             add = true
             supportActionBar?.setTitle(R.string.add_title)
             if (bggid > 0) {
                 APIAsyncTask().execute(bggid)
+            } else {
+                boardGame = BoardGame()
+                initializeFields()
             }
-            BoardGame()
         } else {
             add = false
             supportActionBar?.setTitle(R.string.edit_title)
-            databaseHandler.getBoardGameDetails(id)
+            boardGame = databaseHandler.getBoardGameDetails(id)
+            initializeFields()
         }
         databaseHandler.close()
-
-        initializeFields()
     }
 
     @SuppressLint("InflateParams")
@@ -494,7 +499,10 @@ class EditActivity : AppCompatActivity() {
         intent.putExtra("id", boardGame.id)
         intent.putExtra("edit", false)
         intent.putExtra("add", add)
-        Log.i("goToDetailsActivity", "id=${boardGame.id}; bggid={${boardGame.bggid}; edit=false; add=$add")
+        Log.i(
+            "goToDetailsActivity",
+            "id=${boardGame.id}; bggid={${boardGame.bggid}; edit=false; add=$add"
+        )
         startActivity(intent)
     }
 }

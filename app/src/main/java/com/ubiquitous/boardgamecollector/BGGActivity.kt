@@ -222,6 +222,13 @@ class BGGActivity : AppCompatActivity() {
                     apiAsyncTask.cancel(true)
                     apiAsyncTask = APIAsyncTask()
                     apiAsyncTask.execute()
+                } else if (addAll) {
+                    val toast = Toast.makeText(
+                        applicationContext,
+                        getString(R.string.search_add_all_wait, mapPositionBGGID.keys.size),
+                        Toast.LENGTH_LONG
+                    )
+                    toast.show()
                 } else {
                     val toast = Toast.makeText(
                         applicationContext,

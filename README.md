@@ -16,5 +16,8 @@ Android app for collecting data about board games. Academic project for the *Ubi
 * *LocationsActivity* - displaying all locations with board games located in them; editing a location on click; deleting an empty location on long click; adding new locations.
 * Available in both English and Polish (depending on the system language).
 
+## Screenshots
+![Screenshots](https://github.com/adam-handke/BoardGameCollector/blob/main/screenshots.png?raw=true)
+
 ___
 Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
