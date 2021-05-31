@@ -9,13 +9,10 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
-import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-//TODO: update ranking of this game only
 class RankHistoryActivity : AppCompatActivity() {
 
     private lateinit var rankHistoryListView: ListView

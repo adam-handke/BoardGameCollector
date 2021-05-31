@@ -620,7 +620,6 @@ class DatabaseHandler(
         return boardGame
     }
 
-    //TODO: artists, designers, expansions
     fun insertBoardGame(boardGame: BoardGame, locationID: Int): Int {
         val db = this.writableDatabase
 
@@ -674,7 +673,6 @@ class DatabaseHandler(
                 insertExpansionOfBoardGame(id, expansion.key, expansion.value ?: "")
             }
         }
-
         if (boardGame.artists.isNotEmpty()) {
             //insert artists
             for (artist in boardGame.artists) {
@@ -698,7 +696,8 @@ class DatabaseHandler(
         return id
     }
 
-    //only automatically from BGG
+    //applicable only for artists loaded from BGGID
+    //TODO: modify to allow user-provided artists
     private fun insertArtistOfBoardGame(
         boardGameID: Int, artistBGGID: Int = 0, artistName: String
     ): Int {
@@ -745,7 +744,8 @@ class DatabaseHandler(
         return artistID
     }
 
-    //only automatically from BGG
+    //applicable only for designers loaded from BGGID
+    //TODO: modify to allow user-provided designers
     private fun insertDesignerOfBoardGame(
         boardGameID: Int, designerBGGID: Int = 0, designerName: String
     ): Int {
@@ -792,6 +792,7 @@ class DatabaseHandler(
         return designerID
     }
 
+    //use insertLocation and updateLocationOfBoardGame instead
     fun insertLocationOfBoardGame(
         boardGameID: Int,
         locationName: String,
@@ -898,7 +899,6 @@ class DatabaseHandler(
         }
     }
 
-    //TODO: check if works correctly when API ranks are back up
     fun insertRankHistoryRecord(boardGameID: Int, rank: Int): Int {
         val db = this.writableDatabase
         val values = ContentValues()
@@ -967,7 +967,7 @@ class DatabaseHandler(
         }
     }
 
-    fun updateLocationOfBoardGame(boardGameID: Int, locationID: Int, locationComment: String?) {
+    private fun updateLocationOfBoardGame(boardGameID: Int, locationID: Int, locationComment: String?) {
         if (boardGameID > 0 && locationID > 0) {
             val db = this.writableDatabase
 

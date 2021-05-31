@@ -246,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         //async loading games from database
         loadAsyncTask.execute()
 
-        //TODO: options menu: artists, designers screens
+        //TODO: options menu: artists activity, designers activity
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

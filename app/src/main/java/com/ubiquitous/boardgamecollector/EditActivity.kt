@@ -3,7 +3,6 @@ package com.ubiquitous.boardgamecollector
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -11,11 +10,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.SwitchCompat
 import androidx.core.view.children
 import com.google.android.material.textfield.TextInputEditText
-import java.lang.Exception
 import java.time.LocalDate
 import java.util.*
 
@@ -37,7 +36,7 @@ import java.util.*
         mpn - TextInputEditText
         rank - uneditable (hidden)
         base_expansion_status - choice out of 3 (or hidden)
-            TODO: expansions (maybe only by loading from BGG?)
+            TODO: edit expansions (or only by loading from BGG?)
         comment - TextInputEditText
         location - choice out of existing locations (if empty, then go to adding location)
         location_comment - TextInputEditText
@@ -188,12 +187,23 @@ class EditActivity : AppCompatActivity() {
         editComment.setText(boardGame.comment)
 
         val locations = databaseHandler.getAllLocations()
+        val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
+        //remove all radio button before adding new
+        val count: Int = radioButtonGroup.childCount
+        if (count > 0) {
+            for (i in count - 1 downTo 0) {
+                val o: View = radioButtonGroup.getChildAt(i)
+                if (o is RadioButton) {
+                    radioButtonGroup.removeViewAt(i)
+                }
+            }
+        }
+        addLocationRadioButton(0, getString(R.string.noneSelected))
         for (loc in locations) {
             Log.i("LOCATION_" + loc.key, loc.value ?: getString(R.string.null_location_name))
             addLocationRadioButton(loc.key, loc.value ?: getString(R.string.null_location_name))
         }
         val locationID = databaseHandler.getLocationID(boardGame.id ?: 0)
-        val radioButtonGroup: RadioGroup = findViewById(R.id.locationRadioGroup)
         for (view in radioButtonGroup.children) {
             if (view.tag == locationID) {
                 val radioButton: RadioButton = view.findViewById(locationID)
@@ -270,7 +280,6 @@ class EditActivity : AppCompatActivity() {
         }
         databaseHandler.close()
 
-        addLocationRadioButton(0, getString(R.string.noneSelected))
         initializeFields()
     }
 

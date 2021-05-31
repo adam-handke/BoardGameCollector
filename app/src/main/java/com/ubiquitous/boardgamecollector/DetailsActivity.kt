@@ -65,7 +65,6 @@ class DetailsActivity : AppCompatActivity() {
 
         supportActionBar?.subtitle = boardGame.nameToString(getString(R.string.unnamed_board_game))
 
-        //TODO: expansion names
         val detailNames = arrayOf(
             getString(R.string.name),
             getString(R.string.original_name),
@@ -124,10 +123,10 @@ class DetailsActivity : AppCompatActivity() {
         detailListView.addHeaderView(imageView)
 
         /*TODO: on click actions specific for every row:
-            designers - go to designers activity???
-            artists - go to artists activity???
+            designers - go to designers activity?
+            artists - go to artists activity?
             BGGID - open URL with that ID through a web browser
-            location - locations activity
+            location - go to locations activity?
                 other rows - copy to clipboard?
          */
         detailListView.setOnItemClickListener { _, _, position, _ ->

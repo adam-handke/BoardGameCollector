@@ -5,7 +5,6 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
 
-//TODO: add artist, designer, location
 class BoardGame(
     var id: Int? = null,
     var name: String? = null,
