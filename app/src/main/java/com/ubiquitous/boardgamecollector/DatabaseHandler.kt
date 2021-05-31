@@ -203,7 +203,6 @@ class DatabaseHandler(
         }
     }
 
-    //TODO: parameterized ORDER BY
     fun getAllBoardGamesWithoutDetails(): List<BoardGame> {
         val list: MutableList<BoardGame> = mutableListOf()
         /*

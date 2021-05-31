@@ -69,4 +69,8 @@
     <string name="rank_not_updated">BGG was not updated</string>
     <string name="rank_update_cancelled">BGG rank update was cancelled</string>
     <string name="update_rank_wrong_bggid">Board game has incorrect BGG ID</string>
+    <string name="load_current_ranking">Load current BGG ranking</string>
+    <string name="load_current_ranking_cancelled">Loading current Board Game Geek ranking for all board games in collection was interrupted</string>
+    <string name="load_current_ranking_start">Please wait - loading current Board Game Geek ranking for all board games in collection (apart from expansions)</string>
+    <string name="load_current_ranking_finish">Current Board Game Geek ranking was loaded for %1$d board games in collection</string>
 </resources>

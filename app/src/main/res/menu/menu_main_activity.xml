@@ -38,6 +38,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/loadCurrentRanking"
+        android:title="@string/load_current_ranking"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/resetCollection"
         android:title="@string/reset_collection"
         android:visible="true"
