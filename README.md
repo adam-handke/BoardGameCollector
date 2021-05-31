@@ -17,7 +17,7 @@ Android app for collecting data about board games. Academic project for the *Ubi
 * Available in both English and Polish (depending on the system language).
 
 ## Screenshots
-![Screenshots](https://github.com/adam-handke/BoardGameCollector/blob/main/screenshots.png?raw=true)
+![Screenshots](https://github.com/adam-handke/BoardGameCollector/blob/main/screenshots.jpg?raw=true)
 
 ___
 Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
