@@ -52,11 +52,11 @@ class BoardGame(
             yearPublished?.toString() ?: "—",
             when (designers.size) {
                 0 -> "—"
-                else -> designers.values.joinToString(", ")
+                else -> designers.values.joinToString(", \n")
             },
             when (artists.size) {
                 0 -> "—"
-                else -> artists.values.joinToString(", ")
+                else -> artists.values.joinToString(", \n")
             },
             description ?: "—",
             dateOrdered?.format(pattern) ?: "—",
@@ -74,7 +74,7 @@ class BoardGame(
             },
             when (expansions.size) {
                 0 -> "—"
-                else -> expansions.values.joinToString(", ")
+                else -> expansions.values.joinToString(", \n")
             },
             comment ?: "—",
             locationName ?: "—",

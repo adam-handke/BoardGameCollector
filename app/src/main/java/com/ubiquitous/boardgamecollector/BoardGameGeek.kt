@@ -14,7 +14,6 @@ import java.net.URL
 import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 
-//TODO: loading up-to-date rank for a board game (all board games?)
 class BoardGameGeek(
     val baseURL: String = "https://www.boardgamegeek.com/xmlapi2",
     val longLoadingWarningLimit: Int = 20
@@ -76,7 +75,18 @@ class BoardGameGeek(
                     val yearNodeList = element.getElementsByTagName("yearpublished")
                     if (yearNodeList.length > 0) {
                         val yearElement: Element = yearNodeList.item(0) as Element
-                        boardGame.yearPublished = yearElement.getAttribute("value").toInt()
+                        //year validation
+                        val yearString = yearElement.getAttribute("value")
+                        boardGame.yearPublished = if (yearString.isBlank()) {
+                            null
+                        } else {
+                            val year = yearString.toInt()
+                            if (year < 0) {
+                                null
+                            } else {
+                                year
+                            }
+                        }
                     }
 
                     list.add(boardGame)
@@ -124,6 +134,10 @@ class BoardGameGeek(
                         //assign year published
                         boardGame.yearPublished =
                             getNodeValue("yearpublished", element)?.toIntOrNull()
+                        //year validation
+                        if (boardGame.yearPublished != null && boardGame.yearPublished!! < 0){
+                            boardGame.yearPublished = null
+                        }
 
                         //assign comment
                         boardGame.comment = getNodeValue("comment", element)
@@ -154,13 +168,13 @@ class BoardGameGeek(
         return list
     }
 
-    //TODO: rank, designers, artists and expansions inside BoardGame - must be handled afterwards
+    //designers, artists and expansions inside BoardGame object
     fun loadBoardGame(bggid: Int, onlyRank: Boolean = false): BoardGame {
         val boardGame = BoardGame(bggid = bggid)
         Log.i("loadBoardGame", "bggid=$bggid")
         if (bggid > 0) {
             var i = 0
-            while(i in 0..5) { //try up to 6 times to load from API
+            while (i in 0..5) { //try up to 6 times to load from API
                 try {
                     val url = URL("$baseURL/thing?id=$bggid&stats=1")
                     val builderFactory: DocumentBuilderFactory =
@@ -173,7 +187,7 @@ class BoardGameGeek(
                     if (nodeList.length > 0) {
                         val element: Element = nodeList.item(0) as Element
                         if (element.getAttribute("id") == bggid.toString()) {
-                            if(!onlyRank) { //load everything, if not - only rank
+                            if (!onlyRank) { //load everything, if not - only rank
 
                                 //assign status as expansion if is expansion
                                 if (element.getAttribute("type") == "boardgameexpansion") {
@@ -200,12 +214,17 @@ class BoardGameGeek(
                                 val yearNodeList = element.getElementsByTagName("yearpublished")
                                 if (yearNodeList.length > 0) {
                                     val yearElement: Element = yearNodeList.item(0) as Element
-                                    boardGame.yearPublished =
-                                        yearElement.getAttribute("value").toInt()
-
-                                    //treat year=0 as null
-                                    if (boardGame.yearPublished == 0) {
-                                        boardGame.yearPublished = null
+                                    //year validation
+                                    val yearString = yearElement.getAttribute("value")
+                                    boardGame.yearPublished = if (yearString.isBlank()) {
+                                        null
+                                    } else {
+                                        val year = yearString.toInt()
+                                        if (year < 0) {
+                                            null
+                                        } else {
+                                            year
+                                        }
                                     }
                                 }
 
@@ -313,7 +332,7 @@ class BoardGameGeek(
                     Thread.sleep(1000)
                 }
             }
-            if (i > 5){
+            if (i > 5) {
                 Log.i("loadBoardGame_FAILURE", "bggid=$bggid")
             }
         }

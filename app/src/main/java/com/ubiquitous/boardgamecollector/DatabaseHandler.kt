@@ -628,30 +628,53 @@ class DatabaseHandler(
             //new board game in existing location
             updateLocationOfBoardGame(id, locationID, boardGame.locationComment)
         }
-        Log.i("insertBoardGame", "rank=${boardGame.rank}")
+        //Log.i("insertBoardGame", "rank=${boardGame.rank}")
         if (boardGame.rank > 0) {
             //save rank in rank history
             insertRankHistoryRecord(id, boardGame.rank)
         }
+        if (boardGame.expansions.isNotEmpty()) {
+            //insert expansions
+            for (expansion in boardGame.expansions) {
+                Log.i(
+                    "insertBoardGame_EXPANSION",
+                    "id=$id; expansionBGGID=${expansion.key}; expansion_name=${expansion.value}"
+                )
+                insertExpansionOfBoardGame(id, expansion.key, expansion.value ?: "")
+            }
+        }
 
-        /*
-        for (artist in boardGame.artistNames) {
-            insertArtistOfBoardGame(id, 0, artist)
+        if (boardGame.artists.isNotEmpty()) {
+            //insert artists
+            for (artist in boardGame.artists) {
+                Log.i(
+                    "insertBoardGame_ARTIST",
+                    "id=$id; artistBGGID=${artist.key}; artist_name=${artist.value}"
+                )
+                insertArtistOfBoardGame(id, artist.key, artist.value ?: "")
+            }
         }
-        for (designer in boardGame.designerNames) {
-            insertDesignerOfBoardGame(id, 0, designer)
+        if (boardGame.designers.isNotEmpty()) {
+            //insert designers
+            for (designer in boardGame.designers) {
+                Log.i(
+                    "insertBoardGame_DESIGNER",
+                    "id=$id; designerBGGID=${designer.key}; designer_name=${designer.value}"
+                )
+                insertDesignerOfBoardGame(id, designer.key, designer.value ?: "")
+            }
         }
-        */
         return id
     }
 
-    fun insertArtistOfBoardGame(
+    //only automatically from BGG
+    private fun insertArtistOfBoardGame(
         boardGameID: Int, artistBGGID: Int = 0, artistName: String
     ): Int {
         val db = this.writableDatabase
         //check if artist with the same BGGID exists in the DB
         var artistID = 0
-        if (artistBGGID > 0) {
+        if (artistBGGID > 0 && artistName.isNotBlank()) {
             //val query = "SELECT $COLUMN_ID FROM $TABLE_ARTISTS WHERE $COLUMN_BGGID = $artistBGGID;"
             val cursor = db.query(
                 TABLE_ARTISTS,
@@ -675,29 +698,30 @@ class DatabaseHandler(
             } finally {
                 cursor.close()
             }
-        }
-        if (artistID == 0) {
+            if (artistID == 0) {
+                val values = ContentValues()
+                values.put(COLUMN_BGGID, artistBGGID)
+                values.put(COLUMN_NAME, artistName)
+                artistID = db.insert(TABLE_ARTISTS, null, values).toInt()
+                Log.i("insertArtistOfBoardGame", "id=$artistID")
+            }
             val values = ContentValues()
-            values.put(COLUMN_BGGID, artistBGGID)
-            values.put(COLUMN_NAME, artistName)
-            artistID = db.insert(TABLE_ARTISTS, null, values).toInt()
-            Log.i("insertArtistOfBoardGame", "id=$artistID")
+            values.put(COLUMN_BOARDGAME_ID, boardGameID)
+            values.put(COLUMN_ARTIST_ID, artistID)
+            db.insert(LINK_TABLE_BOARDGAMES_ARTISTS, null, values)
         }
-        val values = ContentValues()
-        values.put(COLUMN_BOARDGAME_ID, boardGameID)
-        values.put(COLUMN_ARTIST_ID, artistID)
-        db.insert(LINK_TABLE_BOARDGAMES_ARTISTS, null, values)
         db.close()
         return artistID
     }
 
-    fun insertDesignerOfBoardGame(
+    //only automatically from BGG
+    private fun insertDesignerOfBoardGame(
         boardGameID: Int, designerBGGID: Int = 0, designerName: String
     ): Int {
         val db = this.writableDatabase
-        //check if designer with the same BGGID exists in the DB
         var designerID = 0
-        if (designerBGGID > 0) {
+        if (designerBGGID > 0 && designerName.isNotBlank()) {
+            //check if designer with the same BGGID exists in the DB
             //val query = "SELECT $COLUMN_ID FROM $TABLE_DESIGNERS WHERE $COLUMN_BGGID = $designerBGGID;"
             val cursor = db.query(
                 TABLE_DESIGNERS,
@@ -721,18 +745,18 @@ class DatabaseHandler(
             } finally {
                 cursor.close()
             }
-        }
-        if (designerID == 0) {
+            if (designerID == 0) {
+                val values = ContentValues()
+                values.put(COLUMN_BGGID, designerBGGID)
+                values.put(COLUMN_NAME, designerName)
+                designerID = db.insert(TABLE_DESIGNERS, null, values).toInt()
+                Log.i("insertDesignerOfBoardGame", "id=$designerID")
+            }
             val values = ContentValues()
-            values.put(COLUMN_BGGID, designerBGGID)
-            values.put(COLUMN_NAME, designerName)
-            designerID = db.insert(TABLE_DESIGNERS, null, values).toInt()
-            Log.i("insertDesignerOfBoardGame", "id=$designerID")
+            values.put(COLUMN_BOARDGAME_ID, boardGameID)
+            values.put(COLUMN_DESIGNER_ID, designerID)
+            db.insert(LINK_TABLE_BOARDGAMES_DESIGNERS, null, values)
         }
-        val values = ContentValues()
-        values.put(COLUMN_BOARDGAME_ID, boardGameID)
-        values.put(COLUMN_DESIGNER_ID, designerID)
-        db.insert(LINK_TABLE_BOARDGAMES_DESIGNERS, null, values)
         db.close()
         return designerID
     }
@@ -791,8 +815,12 @@ class DatabaseHandler(
 
     //applicable only for expansions loaded from BGGID
     //TODO: modify to allow user-provided expansions
-    fun insertExpansionOfBoardGame(boardGameID: Int, expansion: BoardGame) {
-        if (expansion.bggid > 0) {
+    private fun insertExpansionOfBoardGame(
+        boardGameID: Int,
+        expansionBGGID: Int,
+        expansionName: String
+    ) {
+        if (expansionBGGID > 0 && expansionName.isNotBlank()) {
             val db = this.writableDatabase
             /*
             val query =
@@ -806,7 +834,7 @@ class DatabaseHandler(
                 "$COLUMN_BOARDGAME_ID = ? AND $COLUMN_EXPANSION_BGGID = ?",
                 arrayOf(
                     boardGameID.toString(),
-                    expansion.bggid.toString()
+                    expansionBGGID.toString()
                 ),
                 null,
                 null,
@@ -814,11 +842,12 @@ class DatabaseHandler(
                 null
             )
             if (cursor.count == 0) {
+                //only insert when there isn't already such expansion (bggid) connected to that ID
                 cursor.close()
                 val values = ContentValues()
                 values.put(COLUMN_BOARDGAME_ID, boardGameID)
-                values.put(COLUMN_EXPANSION_BGGID, expansion.bggid)
-                values.put(COLUMN_EXPANSION_NAME, expansion.name)
+                values.put(COLUMN_EXPANSION_BGGID, expansionBGGID)
+                values.put(COLUMN_EXPANSION_NAME, expansionName)
                 db.insert(LINK_TABLE_BOARDGAMES_EXPANSIONS, null, values)
             }
             db.close()
