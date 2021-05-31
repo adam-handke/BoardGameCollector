@@ -8,10 +8,9 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ListView
-import android.widget.SimpleAdapter
-import android.widget.Toast
+import android.widget.*
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 import java.lang.Exception
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -57,7 +56,6 @@ class RankHistoryActivity : AppCompatActivity() {
             intArrayOf(android.R.id.text1, android.R.id.text2)
         )
 
-        rankHistoryListView = findViewById(R.id.rankHistoryList)
         rankHistoryListView.adapter = adapter
     }
 
@@ -134,6 +132,14 @@ class RankHistoryActivity : AppCompatActivity() {
 
         supportActionBar?.setTitle(R.string.rank_history_title)
         supportActionBar?.subtitle = name
+
+        rankHistoryListView = findViewById(R.id.rankHistoryList)
+
+        //insert an empty footer in order not to cover the last row with the button
+        val emptyTextView = TextView(this)
+        emptyTextView.height = (resources.displayMetrics.density * 64 + 0.5).toInt()
+        emptyTextView.isClickable = false
+        rankHistoryListView.addFooterView(emptyTextView, null, false)
 
         displayRankHistory()
     }

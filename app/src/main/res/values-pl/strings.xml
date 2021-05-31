@@ -73,4 +73,17 @@
     <string name="load_current_ranking_cancelled">Pobieranie aktualnego rankingu Board Game Geek dla wszystkich gier w kolekcji zostało przerwane</string>
     <string name="load_current_ranking_start">Proszę czekać - trwa pobieranie aktualnego rankingu Board Game Geek dla wszystkich gier planszowych w kolekcji (poza dodatkami)</string>
     <string name="load_current_ranking_finish">Pobrano aktualny ranking Board Game Geek dla %1$d gier planszowych w kolekcji</string>
+    <string name="locations_title">Lokalizacje</string>
+    <string name="locations_subtitle">Zapisano %1$d lokalizacji</string>
+    <string name="add_location">Dodaj nową lokalizację</string>
+    <string name="edit_location">Edytuj istniejącą lokalizację</string>
+    <string name="confirm">Zatwierdź</string>
+    <string name="unnamed_location">Nienazwana lokalizacja</string>
+    <string name="location_no_games">pusto</string>
+    <string name="cancel">Anuluj</string>
+    <string name="location_cant_delete">Nie można usunąć tej lokalizacji ponieważ nie jest pusta</string>
+    <string name="location_deleted">Lokalizacja została usunięta</string>
+    <string name="location_wrong_name">Niewłaściwa nazwa lokalizacji</string>
+    <string name="location_added">Lokalizacja została dodana</string>
+    <string name="location_edited">Nazwa lokalizacji została zmieniona</string>
 </resources>

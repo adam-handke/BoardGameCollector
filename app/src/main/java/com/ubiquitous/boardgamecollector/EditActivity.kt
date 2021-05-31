@@ -454,8 +454,8 @@ class EditActivity : AppCompatActivity() {
                     else -> editLocationComment.text.toString().trim()
                 }
 
+                //TODO: add artists & designers when adding manually
                 if (add) {
-                    //TODO: add artists & designers when game from BGG
                     boardGame.id = databaseHandler.insertBoardGame(boardGame, locationID)
                 } else {
                     databaseHandler.updateBoardGame(boardGame, locationID)

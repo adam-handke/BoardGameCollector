@@ -1,6 +1,5 @@
 package com.ubiquitous.boardgamecollector
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.AsyncTask
@@ -16,7 +15,6 @@ import android.widget.TableLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.android.material.textfield.TextInputEditText
 import java.lang.Exception
 import java.util.*
 import kotlin.math.roundToInt
@@ -248,7 +246,7 @@ class MainActivity : AppCompatActivity() {
         //async loading games from database
         loadAsyncTask.execute()
 
-        //TODO: options menu: locations, artists, designers screens
+        //TODO: options menu: artists, designers screens
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -314,6 +312,14 @@ class MainActivity : AppCompatActivity() {
                 apiAsyncTask.cancel(true)
                 apiAsyncTask = APIAsyncTask()
                 apiAsyncTask.execute()
+            }
+            R.id.goToLocations -> {
+                loadAsyncTask.cancel(true)
+                apiAsyncTask.cancel(true)
+                val intent = Intent(this, LocationsActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                Log.i("goToLocationsActivity", "")
+                startActivity(intent)
             }
             R.id.sort_by_name -> {
                 sortBy = item.itemId

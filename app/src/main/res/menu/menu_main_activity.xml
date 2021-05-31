@@ -44,6 +44,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/goToLocations"
+        android:title="@string/locations_title"
+        android:visible="true"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/resetCollection"
         android:title="@string/reset_collection"
         android:visible="true"

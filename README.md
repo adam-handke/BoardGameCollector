@@ -13,6 +13,8 @@ Android app for collecting data about board games. Academic project for the *Ubi
 * *EditActivity* - editing editable details of an existing board game or adding a new board game manually or adding a new board game from Board Game Geek.
 * *BGGActivity* - searching board games at Board Game Geek by game name or by username (all games in user's collection). Options menu: adding all search results to collection.
 * *RankHistoryActivity* - displaying the rank history of a board game. A button allows to update the rank.
+* *LocationsActivity* - displaying all locations with board games located in them; editing a location on click; deleting an empty location on long click; adding new locations.
+* Available in both English and Polish (depending on the system language).
 
 ___
 Icon made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>

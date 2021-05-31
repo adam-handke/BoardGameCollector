@@ -16,6 +16,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
+import java.util.*
 import kotlin.Exception
 
 class DatabaseHandler(
@@ -308,7 +309,7 @@ class DatabaseHandler(
             null,
             null,
             null,
-            null,
+            COLUMN_NAME,
             null
         )
         try {
@@ -323,6 +324,37 @@ class DatabaseHandler(
         db.close()
 
         return map
+    }
+
+    fun getAllBoardGamesInLocation(locationID: Int): List<BoardGame> {
+        val list: MutableList<BoardGame> = mutableListOf()
+
+        if(locationID > 0) {
+            val query =
+                "SELECT $TABLE_BOARDGAMES.$COLUMN_NAME, $TABLE_BOARDGAMES.$COLUMN_ORIGINAL_NAME, " +
+                        "$TABLE_BOARDGAMES.$COLUMN_YEAR_PUBLISHED " +
+                        "FROM $LINK_TABLE_BOARDGAMES_LOCATIONS INNER JOIN $TABLE_BOARDGAMES ON " +
+                        "$LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_BOARDGAME_ID = $TABLE_BOARDGAMES.$COLUMN_ID " +
+                        "WHERE $LINK_TABLE_BOARDGAMES_LOCATIONS.$COLUMN_LOCATION_ID = $locationID;"
+            val db = this.writableDatabase
+            val cursor = db.rawQuery(query, null)
+            try {
+                while (cursor.moveToNext()) {
+                    val tmpBoardGame = BoardGame(
+                        name = cursor.getStringOrNull(0),
+                        originalName = cursor.getStringOrNull(1),
+                        yearPublished = cursor.getIntOrNull(2)
+                    )
+                    list.add(tmpBoardGame)
+                }
+            } catch (e: Exception) {
+                Log.e("getAllBoardGamesInLocation_EXCEPTION", "${e.message}; ${e.stackTraceToString()}")
+            } finally {
+                cursor.close()
+            }
+            db.close()
+        }
+        return list
     }
 
     private fun getArtists(boardGameID: Int): Map<Int, String?> {
@@ -812,6 +844,19 @@ class DatabaseHandler(
         return locationID
     }
 
+    fun insertLocation(locationName: String): Int{
+        if(locationName.isNotBlank()){
+            val db = this.writableDatabase
+            val values = ContentValues()
+            values.put(COLUMN_NAME, locationName)
+            val locationID = db.insert(TABLE_LOCATIONS, null, values).toInt()
+            Log.i("insertLocation", "id=$locationID; name=$locationName")
+            db.close()
+            return locationID
+        }
+        return  0
+    }
+
     //applicable only for expansions loaded from BGGID
     //TODO: modify to allow user-provided expansions
     private fun insertExpansionOfBoardGame(
@@ -942,13 +987,35 @@ class DatabaseHandler(
         }
     }
 
-    fun deleteBoardGame(boardGameID: Int) {
+    fun updateLocationName(locationID: Int, locationName: String): Int {
+        if (locationID > 0 && locationName.isNotBlank()) {
+            val db = this.writableDatabase
+            val values = ContentValues()
+            values.put(COLUMN_NAME, locationName)
+            val rows = db.update(TABLE_LOCATIONS, values, "$COLUMN_ID = ?", arrayOf(locationID.toString()))
+            Log.i("updateLocation", "updated $rows Location rows")
+            db.close()
+            return rows
+        }
+        return 0
+    }
 
+    fun deleteBoardGame(boardGameID: Int) {
         if (boardGameID > 0) {
             val db = this.writableDatabase
             val rows =
                 db.delete(TABLE_BOARDGAMES, "$COLUMN_ID = ?", arrayOf(boardGameID.toString()))
             Log.i("deleteBoardGame", "deleted $rows BoardGames rows where id=$boardGameID")
+            db.close()
+        }
+    }
+
+    fun deleteLocation(locationID: Int) {
+        if (locationID > 0) {
+            val db = this.writableDatabase
+            val rows =
+                db.delete(TABLE_LOCATIONS, "$COLUMN_ID = ?", arrayOf(locationID.toString()))
+            Log.i("deleteLocation", "deleted $rows Location rows where id=$locationID")
             db.close()
         }
     }

@@ -73,4 +73,17 @@
     <string name="load_current_ranking_cancelled">Loading current Board Game Geek ranking for all board games in collection was interrupted</string>
     <string name="load_current_ranking_start">Please wait - loading current Board Game Geek ranking for all board games in collection (apart from expansions)</string>
     <string name="load_current_ranking_finish">Current Board Game Geek ranking was loaded for %1$d board games in collection</string>
+    <string name="locations_title">Locations</string>
+    <string name="locations_subtitle">%1$d locations saved</string>
+    <string name="add_location">Add a new location</string>
+    <string name="edit_location">Edit existing location</string>
+    <string name="confirm">Confirm</string>
+    <string name="unnamed_location">Unnamed location</string>
+    <string name="location_no_games">empty</string>
+    <string name="cancel">Cancel</string>
+    <string name="location_cant_delete">Can\'t delete this location because it isn\'t empty</string>
+    <string name="location_deleted">Location was deleted</string>
+    <string name="location_wrong_name">Wrong location name</string>
+    <string name="location_added">Location was added</string>
+    <string name="location_edited">Location name was edited</string>
 </resources>

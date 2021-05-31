@@ -8,10 +8,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.ArrayAdapter
-import android.widget.Button
-import android.widget.ListView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.textfield.TextInputEditText
 import java.lang.Exception
@@ -175,6 +172,12 @@ class BGGActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
+        //insert an empty footer in order not to cover the last row with the buttons
+        val emptyTextView = TextView(this)
+        emptyTextView.height = (resources.displayMetrics.density * 64 + 0.5).toInt()
+        emptyTextView.isClickable = false
+        searchResultsListView.addFooterView(emptyTextView, null, false)
     }
 
     fun searchName(view: View) {
